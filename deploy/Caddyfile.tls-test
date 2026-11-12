@@ -1,0 +1,17 @@
+{
+	admin off
+	persist_config off
+	default_sni {$VERDANO_TEST_IP:177.39.77.155}
+	skip_install_trust
+	auto_https disable_redirects
+	storage file_system {
+		root {$VERDANO_WORKSPACE:E:/projeto_raizes_vivas}/tools/caddy/data
+	}
+}
+
+import routes.caddy
+
+https://{$VERDANO_TEST_IP:177.39.77.155} {
+	tls internal
+	import verdano_routes
+}

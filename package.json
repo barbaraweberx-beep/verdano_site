@@ -1,0 +1,21 @@
+{
+  "name": "verdano-event-password-hunt",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node event-server/server.cjs",
+    "test": "node --test event-server/test/*.test.cjs",
+    "check": "node --check event-server/server.cjs && node --check event-server/store.cjs && node --check event-server/scripts/generate-qr.cjs",
+    "event:qr": "node event-server/scripts/generate-qr.cjs"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "jsqr": "1.4.0"
+  }
+}

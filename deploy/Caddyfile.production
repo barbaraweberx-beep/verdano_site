@@ -1,0 +1,13 @@
+{
+	admin off
+	persist_config off
+	storage file_system {
+		root {$VERDANO_WORKSPACE:E:/projeto_raizes_vivas}/tools/caddy/data
+	}
+}
+
+import routes.caddy
+
+verdano.com.br, www.verdano.com.br {
+	import verdano_routes
+}
