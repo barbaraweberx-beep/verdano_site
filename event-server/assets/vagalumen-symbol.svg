@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+  <defs>
+    <linearGradient id="wing" x1="25" y1="25" x2="104" y2="93" gradientUnits="userSpaceOnUse"><stop stop-color="#267ad7"/><stop offset=".48" stop-color="#7270ca"/><stop offset="1" stop-color="#4a2c96"/></linearGradient>
+    <linearGradient id="body" x1="113" y1="64" x2="76" y2="109" gradientUnits="userSpaceOnUse"><stop stop-color="#267ad7"/><stop offset="1" stop-color="#542a91"/></linearGradient>
+    <radialGradient id="light" cx="0" cy="0" r="1" gradientTransform="translate(64 111) rotate(125) scale(39 25)" gradientUnits="userSpaceOnUse"><stop stop-color="#fff6d6"/><stop offset=".65" stop-color="#ffe96c"/><stop offset="1" stop-color="#f5c542"/></radialGradient>
+  </defs>
+  <path d="M88 88C66 75 30 76 16 103C39 111 66 108 88 88Z" fill="#7964b7"/>
+  <path d="M25 100L78 89M44 84L49 96L42 107M62 84L66 92L61 103" stroke="#3a2278" stroke-width="2" stroke-linecap="round"/>
+  <path d="M88 95C81 101 80 130 58 141C39 150 34 132 46 115C56 101 70 95 88 95Z" fill="url(#light)"/>
+  <path d="M108 73C105 88 92 105 77 110C67 109 63 101 69 93L95 69Z" fill="url(#body)"/>
+  <path d="M97 74C70 62 42 26 25 32C7 44 47 78 78 83C89 83 94 80 97 74Z" fill="url(#wing)"/>
+  <path d="M27 35C28 52 56 72 80 78" stroke="#3592e6" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+  <path d="M115 65C119 50 128 42 137 43M119 70C132 57 143 56 148 60" stroke="#9470db" stroke-width="3" stroke-linecap="round"/>
+  <path d="M98 86L112 92M91 96L101 103M84 103L89 112" stroke="#7953be" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="110" cy="74" r="14" fill="url(#body)"/>
+  <circle cx="115" cy="70" r="2.5" fill="#f7f1e6"/>
+  <circle cx="28" cy="124" r="2" fill="#f5c542" opacity=".75"/>
+  <circle cx="130" cy="111" r="3" fill="#f5c542" opacity=".65"/>
+  <circle cx="69" cy="27" r="2" fill="#ffe9a8" opacity=".65"/>
+</svg>

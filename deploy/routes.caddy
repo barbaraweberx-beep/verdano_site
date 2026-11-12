@@ -1,0 +1,32 @@
+(verdano_routes) {
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		-Server
+	}
+
+	@event path /evento /evento/*
+	handle @event {
+		reverse_proxy 127.0.0.1:3100
+	}
+
+	@gestor path /teste/gestor /teste/gestor/*
+	handle @gestor {
+		# Preserve the deployment prefix and browser Host for Next.js actions.
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# Explicit public paths: never serve the repository's .git, CNAME or deploy files.
+	@landing path / /index.html /favicon.ico /robots.txt /sitemap.xml /assets/* /images/* /css/* /js/* /vagalumen /vagalumen/*
+	handle @landing {
+		root * {$VERDANO_WORKSPACE:E:/projeto_raizes_vivas}/verdano_site
+		file_server {
+			hide .git .env CNAME AGENTS.md README.md deploy
+		}
+	}
+
+	handle {
+		respond "Not found" 404
+	}
+}

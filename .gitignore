@@ -1,0 +1,7 @@
+﻿node_modules/
+event-server/runtime/
+event-server/print/
+*.log
+.env
+.env.*
+!.env.example
