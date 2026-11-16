@@ -48,16 +48,27 @@ Tudo fica no bloco `CONFIG`, no início do script do `index.html`: o nome do mun
 - **Fonte Lutfey Arabic:** é uma fonte paga, então não foi incluída no pacote. Coloque o arquivo licenciado em `fonts/LutfeyArabic.woff2` (ou `fonts/LutfeyArabic.otf`) e o jogo passa a usá-la sozinho. Enquanto o arquivo não estiver lá, o jogo usa a Fredoka, uma fonte gratuita e arredondada parecida.
 - Rodapé "powered by Verdano" e contato da Verdano na tela final de agradecimento.
 
-## Regras implementadas
+## Como o jogo funciona
 
-- Energia: começa em 10% e sobe 22,5% por fragmento, até 100%. O arcade não altera a energia.
-- Pontos: 100 por fragmento, mais 100 de bônus ao completar os 4. Minijogos (cada um é jogado uma vez só): o **Código das Piscadas** é liberado no 1º fragmento e vale 50 por sequência, mais 50 de bônus pelos 3 níveis. O **Apague o Excesso** é liberado no 2º fragmento e vale +5 por lâmpada apagada e −10 por vagalume tocado. Somam-se o primeiro voo e a melhor pontuação no Grande Voo.
-- Ranking: ordena por pontuação total. No empate, fica à frente quem tem mais fragmentos (missão concluída) e depois quem fez mais pontos no Grande Voo.
-- A mesma estação não pontua duas vezes, nem no aparelho nem no banco (chave única jogador+estação).
-- Missão cumprida: ao unir os 4 fragmentos, abre a tela de missão cumprida com o adesivo. Ela pode ser reaberta a qualquer momento pelo botão no painel.
-- Recompensa: liberada com os 4 fragmentos, sem pontuação mínima. A tela tem relógio ao vivo e código de verificação (GL-XXXX), o que dificulta print reaproveitado. A equipe registra a entrega com dois toques em "Equipe: registrar entrega".
-- Offline: o progresso e uma fila de sincronização ficam no aparelho e são enviados quando a internet volta.
-- Modo estande: Ajustes (⚙) → "Iniciar novo jogador", para usar um tablet de demonstração.
+1. Na abertura, a Lumi pede ajuda e o jogador escolhe um apelido. O painel abre já pedindo para caçar os 4 QR Codes.
+2. Cada QR Code (lidos em qualquer ordem) devolve um fragmento (+100 pontos e +22,5% de energia) e libera o minijogo daquele mundo:
+   - **Summit Tour:** Caça-Palavras com EMICIDA, TECNOLOGIA, VIBRANTE e TIROLESA, em dificuldade média (horizontal, vertical e diagonais). Vale 35 por palavra, mais um bônus de tempo de até 60.
+   - **FICiências:** Quebra-Cabeça deslizante 3×3 com a Lumi. Vale até 200, com desconto pelo excesso de movimentos.
+   - **RME:** Combina Cristais, no estilo Candy Crush, com cristais, Lumi, microfone e lumens. São 15 jogadas, e os pontos vêm das combinações e dos combos.
+   - **Itaipu Parquetec:** Primeiro Voo, o arcade.
+3. Cada minijogo é jogado uma vez. Quem não terminar pode jogar depois pelo painel.
+4. Com os 4 fragmentos, o jogador une o Núcleo da Luz e ganha o badge **GUARDIÃO DA LUZ**. Aparecem então os botões "Avaliar a experiência" e "Retire seu brinde!". O brinde não depende de pontuação, só dos 4 fragmentos.
+5. A tela do brinde mostra o código de verificação, um relógio ao vivo e o texto "Mostre esta tela no estande da Verdano no mundo Summit Tour…". A equipe registra a entrega com dois toques.
+
+Para mudar o mundo de cada minijogo, edite o campo `jogo` de cada mundo no `CONFIG`. As palavras do caça-palavras ficam em `WS_WORDS`.
+
+## Painel do gestor
+
+Abra o link do jogo com **#gestor** no final (ex.: `.../lumi/#gestor`) ou use Ajustes (⚙) → "Painel do gestor".
+
+- **Com o Supabase:** mostra os dados de todos os aparelhos: jogadores, missões concluídas, taxa de conclusão, QR Codes lidos por mundo, partidas e média de cada minijogo, adesivos entregues, nota média, distribuição de estrelas e todos os comentários. A senha é definida no `supabase.sql`, na função `painel_gestor`. **Troque `TROQUE-ESTA-SENHA` antes de rodar o SQL.**
+- **Sem o Supabase (modo local):** mostra só o que foi jogado naquele aparelho, o que é útil num tablet de estande. A senha local é `lumi2026` (`CONFIG.gestorSenhaLocal`).
+- Permite baixar ou copiar as avaliações em CSV para abrir numa planilha.
 
 ## Limites conhecidos do MVP
 

@@ -213,6 +213,43 @@ h2.px{font-size:22px;color:var(--lime);text-shadow:0 0 14px rgba(255,212,71,.4)}
 .hunt b{display:block;font:700 18px/1.25 var(--fd);color:#ffd0f3;margin-bottom:4px}
 .hunt span{font-size:13.5px;line-height:1.45;color:var(--white)}
 .actions .hunt{max-width:none}
+.btn.big{min-height:66px;font-size:21px}
+.world[data-game]{cursor:pointer}
+.world[data-game] .sk{color:var(--c);font-weight:700}
+.ginfo{display:flex;justify-content:space-between;align-items:center;width:min(340px,90vw);margin:12px 0 8px;font:700 15px var(--fd);color:var(--muted)}
+.ginfo b{color:var(--yellow)}
+.ginfo .chip{padding:7px 11px;font-size:13px;touch-action:none}
+/* caça-palavras */
+.ws-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:min(340px,92vw);touch-action:none;background:rgba(0,0,0,.25);border-radius:14px;padding:6px}
+.wc{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font:700 clamp(14px,4.4vw,19px) var(--fd);color:var(--white);border-radius:7px;background:rgba(255,255,255,.04);transition:background .12s,color .12s}
+.wc.found{background:color-mix(in srgb,var(--c) 75%,transparent);color:#2a0e36}
+.wc.sel{background:var(--white);color:#2a0e36;transform:scale(1.06)}
+.ws-words{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;max-width:360px}
+.ws-words span{font:700 15px var(--fd);letter-spacing:.06em;padding:8px 12px;border-radius:99px;border:2px solid var(--c);color:var(--c)}
+.ws-words span.ok{background:var(--c);color:#2a0e36;text-decoration:line-through}
+/* quebra-cabeça */
+.pz-board{position:relative;border-radius:16px;background:rgba(0,0,0,.35);overflow:hidden;box-shadow:0 0 0 2px var(--line),0 0 30px rgba(255,212,71,.15)}
+.pz{position:absolute;left:0;top:0;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25);transition:transform .16s ease;cursor:pointer}
+.pz-peek{position:absolute;inset:0;background:var(--img) center/cover;opacity:0;pointer-events:none;transition:opacity .2s}
+.pz-board.peek .pz-peek,.pz-board.solved .pz-peek{opacity:1}
+/* combina cristais */
+.mx-board{position:relative;border-radius:16px;background:rgba(0,0,0,.3);box-shadow:0 0 0 2px var(--line);touch-action:none;overflow:hidden}
+.pc{position:absolute;left:0;top:0;width:var(--s);height:var(--s);padding:3px;transition:transform .22s cubic-bezier(.3,.9,.4,1.1)}
+.pc .in{width:100%;height:100%;border-radius:12px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;transition:transform .2s,opacity .2s}
+.pc.sel .in{background:rgba(255,212,71,.35);box-shadow:0 0 0 2px var(--lime)}
+.pc.pop .in{transform:scale(0) rotate(40deg);opacity:0}
+.pc img{width:92%;height:auto;pointer-events:none;filter:drop-shadow(0 0 4px rgba(255,212,71,.6))}
+.pc svg{width:72%;height:72%;pointer-events:none}
+.lumen{width:58%;height:58%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0 18%,#ffe58a 35%,#ffb300 70%);box-shadow:0 0 12px 3px rgba(255,212,71,.7)}
+.gem{width:62%;height:68%;pointer-events:none}
+.gem.g1{clip-path:polygon(50% 0,100% 38%,50% 100%,0 38%);background:linear-gradient(135deg,#d6e0ff,#6f8cff 45%,#2d3fb0)}
+.gem.g2{clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(135deg,#ffd6f3,#ff6ad5 45%,#a01f86)}
+/* gestor */
+#s-admin input[type=password]{width:100%;max-width:360px;font:600 20px var(--ft);color:var(--white);background:rgba(0,0,0,.35);border:2px solid var(--line);border-radius:14px;padding:15px 16px;outline:none}
+.adm-h{font:700 17px var(--fd);color:var(--yellow);margin:18px 0 8px}
+.hbar{display:grid;grid-template-columns:120px 1fr 34px;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.hbar i{display:block;height:12px;border-radius:9px;background:linear-gradient(90deg,var(--forest),var(--lime));min-width:3px}
+.hbar b{text-align:right;color:var(--yellow)}
 </style>
 </head>
 <body>
@@ -296,32 +333,43 @@ h2.px{font-size:22px;color:var(--lime);text-shadow:0 0 14px rgba(255,212,71,.4)}
 <!-- 8. DESCOBERTA -->
 <section class="screen center" id="s-discovery"><canvas class="fxcv" id="fx-disc"></canvas><div class="layer" id="disc-layer"></div></section>
 
-<!-- 9b. MINIGAME: APAGUE O EXCESSO -->
-<section class="screen center" id="s-lights">
-  <h2 class="px" style="font-size:26px;color:var(--yellow)">Apague o Excesso</h2>
-  <p class="muted" id="lg-sub" style="margin:0;font-size:13.5px;max-width:360px">Toque nas lâmpadas acesas para apagá-las.<br><b style="color:var(--pink)">Não toque nos vagalumes!</b></p>
-  <div class="energy dark-meter" style="margin-top:10px"><div class="lbl"><span id="lg-time">25s</span><b id="lg-score">0 pts</b></div><div class="bar"><i id="lg-bar" style="width:100%;transition:width .2s linear"></i></div></div>
-  <div class="grid-l" id="lg-grid"></div>
-  <p class="mstatus" id="lg-status"></p>
-  <div id="lg-end" class="stack" style="display:none"></div>
+<!-- MINIJOGO SUMMIT TOUR: CAÇA-PALAVRAS -->
+<section class="screen center" id="s-words">
+  <h2 class="px" style="font-size:26px;color:var(--yellow)">Caça-Palavras</h2>
+  <p class="muted" style="margin:0;font-size:13.5px;max-width:360px">Arraste o dedo sobre as letras (ou toque na primeira e na última) para encontrar as 4 palavras.</p>
+  <div class="ginfo"><span id="ws-time">0s</span><b id="ws-count">0/4 palavras</b></div>
+  <div class="ws-grid" id="ws-grid"></div>
+  <div class="ws-words" id="ws-words"></div>
   <div class="sp"></div>
-  <button class="link" id="lg-exit">Sair do desafio</button>
+  <button class="link" data-exit>Sair do desafio</button>
 </section>
 
-<!-- 9. CÓDIGO DAS PISCADAS -->
-<section class="screen center" id="s-memory">
-  <h2 class="px">Código das Piscadas</h2>
-  <p class="muted" id="mem-sub" style="margin:0;font-size:13.5px">Observe as luzes e repita a sequência.</p>
-  <div class="levels" id="mem-levels"></div>
-  <div class="lights" id="mem-lights"></div>
-  <p class="mstatus" id="mem-status"></p>
-  <div id="mem-end" class="stack" style="display:none"></div>
+<!-- MINIJOGO FICIÊNCIAS: QUEBRA-CABEÇA DESLIZANTE -->
+<section class="screen center" id="s-puzzle">
+  <h2 class="px" style="font-size:26px;color:var(--yellow)">Quebra-Cabeça da Lumi</h2>
+  <p class="muted" style="margin:0;font-size:13.5px;max-width:360px">Toque nas peças ao lado do espaço vazio para deslizar e montar a imagem.</p>
+  <div class="ginfo"><span id="pz-moves">0 movimentos</span><button class="chip" id="pz-peek">👁 Ver imagem</button></div>
+  <div class="pz-board" id="pz-board"></div>
   <div class="sp"></div>
-  <button class="link" id="mem-exit">Sair do desafio</button>
+  <button class="link" data-exit>Sair do desafio</button>
 </section>
 
-<!-- 10. HABILIDADES -->
-<section class="screen" id="s-skills"></section>
+<!-- MINIJOGO RME: COMBINA CRISTAIS -->
+<section class="screen center" id="s-match">
+  <h2 class="px" style="font-size:26px;color:var(--yellow)">Combina Cristais</h2>
+  <p class="muted" style="margin:0;font-size:13.5px;max-width:360px">Troque peças vizinhas (arraste ou toque em duas) e alinhe 3 ou mais iguais!</p>
+  <div class="ginfo"><span id="mx-moves">15 jogadas</span><b id="mx-score">0 pts</b></div>
+  <div class="mx-board" id="mx-board"></div>
+  <p class="mstatus" id="mx-status"></p>
+  <div class="sp"></div>
+  <button class="link" data-exit>Sair do desafio</button>
+</section>
+
+<!-- FIM DE MINIJOGO -->
+<section class="screen center" id="s-gameend"></section>
+
+<!-- PAINEL DO GESTOR (#gestor) -->
+<section class="screen" id="s-admin"></section>
 
 <!-- 12. MISSÃO CUMPRIDA -->
 <section class="screen center" id="s-done"><canvas class="fxcv" id="fx-core"></canvas><div class="layer" id="done-layer"></div></section>
@@ -355,14 +403,17 @@ const CONFIG = {
   supabase: { url: '', anonKey: '' },     // preencha para ativar ranking global e missão coletiva
   duracaoVooInicial: 30,                  // segundos
   duracaoGrandeVoo: 50,                   // segundos (45–60)
+  gestorSenhaLocal: 'lumi2026',          // senha do painel do gestor no modo local (sem Supabase)
+  localBrinde: 'no estande da Verdano no mundo Summit Tour',
+  // jogo: palavras | puzzle | cristais | voo   (cada QR Code abre o minijogo do seu mundo)
   worlds: [
-    { id:'mundo1', mundo:'FICiências',       fragmento:'Faísca da Descoberta',    habilidade:'superbrilho', codigo:'LUMI-DESCOBERTA-7Q2X',  curto:'7Q2X', cor:'#ffd447',
+    { id:'mundo1', mundo:'FICiências',       fragmento:'Faísca da Descoberta',    jogo:'puzzle',   codigo:'LUMI-DESCOBERTA-7Q2X',  curto:'7Q2X', cor:'#ffd447',
       frase:'Mais um fragmento recuperado! Agora consigo enxergar um pouco melhor na floresta!' },
-    { id:'mundo2', mundo:'Itaipu Parquetec', fragmento:'Faísca da Inovação',      habilidade:'escudo',      codigo:'LUMI-INOVACAO-K4M9',    curto:'K4M9', cor:'#6f8cff',
-      frase:'Sinto uma energia nova me protegendo! Novas ideias também iluminam caminhos.' },
-    { id:'mundo3', mundo:'Summit Tour',      fragmento:'Faísca da Conexão',       habilidade:'acelerado',   codigo:'LUMI-CONEXAO-P8W3',     curto:'P8W3', cor:'#b98cff',
+    { id:'mundo2', mundo:'Itaipu Parquetec', fragmento:'Faísca da Inovação',      jogo:'voo',      codigo:'LUMI-INOVACAO-K4M9',    curto:'K4M9', cor:'#6f8cff',
+      frase:'Sinto uma energia nova! Novas ideias também iluminam caminhos.' },
+    { id:'mundo3', mundo:'Summit Tour',      fragmento:'Faísca da Conexão',       jogo:'palavras', codigo:'LUMI-CONEXAO-P8W3',     curto:'P8W3', cor:'#b98cff',
       frase:'Consigo sentir os outros vagalumes! Quando nos conectamos, voamos mais longe.' },
-    { id:'mundo4', mundo:'RME',              fragmento:'Faísca da Transformação', habilidade:'pulso',       codigo:'LUMI-TRANSFORMA-Z6H1',  curto:'Z6H1', cor:'#ff6ad5',
+    { id:'mundo4', mundo:'RME',              fragmento:'Faísca da Transformação', jogo:'cristais', codigo:'LUMI-TRANSFORMA-Z6H1',  curto:'Z6H1', cor:'#ff6ad5',
       frase:'Meu brilho está pulsando! Pequenas atitudes transformam a floresta inteira.' }
   ]
 };
@@ -373,14 +424,7 @@ const SKILLS = {
   pulso:      { nome:'Pulso de Luz',      icone:'◎', desc:'Atrai as partículas próximas da Lumi.',              dur:6, cd:16 }
 };
 const ACH = [
-  ['primeira','PRIMEIRA FAÍSCA','Encontrou o primeiro fragmento'],
-  ['explorador','EXPLORADOR DA LUZ','Encontrou dois fragmentos'],
-  ['guardiao_floresta','GUARDIÃO DA FLORESTA','Encontrou três fragmentos'],
-  ['radiante','LUMI RADIANTE','Encontrou os quatro fragmentos'],
-  ['mestre','MESTRE DAS PISCADAS','Completou o Código das Piscadas'],
-  ['noite','GUARDIÃO DA NOITE','Completou o Apague o Excesso'],
-  ['voo','VOO PERFEITO','Concluiu o Grande Voo'],
-  ['guardiao_luz','GUARDIÃO DA LUZ','Missão cumprida!']
+  ['guardiao_luz','GUARDIÃO DA LUZ','Encontrou os 4 fragmentos e concluiu a missão']
 ];
 
 /* ===================== utilidades ===================== */
@@ -401,7 +445,7 @@ $$('[data-evento]').forEach(e => e.textContent = CONFIG.evento);
 const FD = "'Lutfey Arabic','Fredoka',Verdana,sans-serif";
 
 /* ===================== estado local ===================== */
-const KEY='lumi_state_v2', QKEY='lumi_queue_v1', RKEY='lumi_localrank_v1', PKEY='lumi_prefs_v1';
+const KEY='lumi_state_v3', QKEY='lumi_queue_v1', RKEY='lumi_localrank_v1', PKEY='lumi_prefs_v1';
 const DEF = () => ({ v:1, id:uuid(), nick:'', iniciadoEm:null, concluidoEm:null, tutorialDone:false, tutorialScore:0,
   frags:{}, games:{}, united:false, finalPlays:0, finalBest:0, finalLast:null, ach:{}, panelIntro:false, brindeEntregue:null,
   feedbackSent:false, pendingCode:null, firstFinalShown:false });
@@ -413,18 +457,22 @@ function save(){ lsSet(KEY, S); updateLocalRank(); }
 function savePrefs(){ lsSet(PKEY, P); }
 
 const nFrags = () => Object.keys(S.frags).length;
-const GAMES = [
-  { id:'piscadas', nome:'Código das Piscadas', icone:'◉', unlock:1, desc:'Memorize as piscadas dos vagalumes' },
-  { id:'apague',   nome:'Apague o Excesso',    icone:'💡', unlock:2, desc:'Apague as luzes que atrapalham os vagalumes' }
-];
+const GAMES = {
+  palavras: { nome:'Caça-Palavras',         icone:'🔤', tipo:'caca_palavras' },
+  puzzle:   { nome:'Quebra-Cabeça da Lumi', icone:'🧩', tipo:'quebra_cabeca' },
+  cristais: { nome:'Combina Cristais',      icone:'💎', tipo:'combina_cristais' },
+  voo:      { nome:'Primeiro Voo',          icone:'✦',  tipo:'primeiro_voo' }
+};
+const gameOf = w => GAMES[w.jogo];
 function huntHint(){
   const n = nFrags(); if (n >= 4) return '';
   const faltam = CONFIG.worlds.filter(w => !S.frags[w.id]).map(w => esc(w.mundo));
-  return `<div class="hunt"><b>🔎 Procure os outros QR Codes da Lumi!</b><span>${n === 0 ? 'Os 4 códigos estão' : `Falta${4 - n > 1 ? 'm' : ''} ${4 - n}. ${4 - n > 1 ? 'Eles estão' : 'Ele está'}`} espalhados pelos mundos do festival: ${faltam.join(', ')}.</span></div>`;
+  return `<div class="hunt"><b>🔎 Procure os ${n ? 'outros ' : ''}QR Codes da Lumi!</b><span>${n === 0 ? 'Os 4 códigos estão' : `Falta${4 - n > 1 ? 'm' : ''} ${4 - n}. ${4 - n > 1 ? 'Eles estão' : 'Ele está'}`} espalhados pelos mundos do festival: ${faltam.join(', ')}.</span></div>`;
 }
-const pendingGame = () => GAMES.find(g => nFrags() >= g.unlock && !S.games[g.id]);
+const pendingGames = () => CONFIG.worlds.filter(w => S.frags[w.id] && !S.games[w.jogo]);
 const memPoints = () => Object.values(S.games).reduce((a,m) => a + (m.pts||0), 0);
-const totalScore = () => { const n = nFrags(); return S.tutorialScore + n*100 + (n===4 ? 100 : 0) + memPoints() + S.finalBest; };
+const totalScore = () => { const n = nFrags(); return n*100 + (n===4 ? 100 : 0) + memPoints(); };
+const nGames = () => Object.keys(S.games).length;
 const energy = () => Math.min(100, 10 + 22.5*nFrags());
 const glowLevel = () => [0.1, 0.32, 0.55, 0.8, 1][nFrags()];
 const verifCode = () => 'GL-' + S.id.replace(/-/g,'').slice(0,4).toUpperCase();
@@ -432,7 +480,7 @@ const verifCode = () => 'GL-' + S.id.replace(/-/g,'').slice(0,4).toUpperCase();
 function updateLocalRank(){
   if (!S.nick) return;
   const list = (lsGet(RKEY) || []).filter(r => r.id !== S.id);
-  list.push({ id:S.id, apelido:S.nick, pontuacao:totalScore(), fragmentos:nFrags(), pontuacao_final:S.finalBest });
+  list.push({ id:S.id, apelido:S.nick, pontuacao:totalScore(), fragmentos:nFrags(), desafios:nGames() });
   lsSet(RKEY, list);
 }
 
@@ -447,10 +495,13 @@ function syncPlayer(){
   if (!S.nick) return;
   QUEUE = QUEUE.filter(i => i.t !== 'jogadores');
   QUEUE.unshift({ t:'jogadores', c:'id', m:'merge', row:{ id:S.id, apelido:S.nick, pontuacao:totalScore(), fragmentos:nFrags(),
-    pontuacao_final:S.finalBest, iniciado_em:S.iniciadoEm, concluido_em:S.concluidoEm, atualizado_em:new Date().toISOString() } });
+    desafios:nGames(), iniciado_em:S.iniciadoEm, concluido_em:S.concluidoEm, atualizado_em:new Date().toISOString() } });
   saveQ(); setTimeout(flush, 50);
 }
+const LKEY = 'lumi_log_v1';
+function logLocal(ev){ const l = lsGet(LKEY) || []; l.push(Object.assign({ at:new Date().toISOString(), jog:S.id }, ev)); if (l.length > 5000) l.splice(0, l.length - 5000); lsSet(LKEY, l); }
 function logChallenge(tipo, resultado, pontuacao){
+  logLocal({ e:'desafio', tipo, pts:Math.round(pontuacao) });
   enqueue('desafios', { id:uuid(), jogador_id:S.id, tipo, resultado, pontuacao:Math.round(pontuacao), data:new Date().toISOString() }, 'id');
 }
 let flushing = false;
@@ -507,14 +558,7 @@ function toast(msg, ms=2600){ const t = $('#toast'); t.innerHTML = msg; t.classL
 
 /* ===================== conquistas ===================== */
 function checkAch(){
-  const n = nFrags(), got = [];
-  const give = k => { if (!S.ach[k]){ S.ach[k] = new Date().toISOString(); got.push(k); } };
-  if (n>=1) give('primeira'); if (n>=2) give('explorador'); if (n>=3) give('guardiao_floresta');
-  if (n>=4){ give('radiante'); give('guardiao_luz'); }
-  if (S.games.piscadas) give('mestre');
-  if (S.games.apague) give('noite');
-  if (S.finalPlays>0) give('voo');
-  if (got.length){ save(); got.forEach((k,i) => setTimeout(() => { toast('🏆 Conquista: ' + ACH.find(a=>a[0]===k)[1]); }, 900 + i*2800)); }
+  if (nFrags() >= 4 && !S.ach.guardiao_luz){ S.ach.guardiao_luz = new Date().toISOString(); save(); setTimeout(() => toast('🏆 Conquista: GUARDIÃO DA LUZ'), 900); }
 }
 
 /* ===================== desenho do Lumi ===================== */
@@ -596,7 +640,7 @@ document.addEventListener('click', e => {
 /* ===================== início e narrativa ===================== */
 function refreshStart(){ $('#b-continue').style.display = S.nick ? '' : 'none'; $('#b-play').textContent = S.nick ? 'NOVO JOGO NESTE APARELHO' : 'JOGAR'; $('#b-play').classList.toggle('ghost', !!S.nick); $('#b-play').classList.toggle('small', !!S.nick); }
 refreshStart();
-$('#b-continue').onclick = () => { audio(); show(S.tutorialDone ? 'panel' : 'tutorial'); };
+$('#b-continue').onclick = () => { audio(); show('panel'); };
 $('#b-play').onclick = () => {
   audio();
   if (S.nick){ openSettings(true); return; }
@@ -605,7 +649,7 @@ $('#b-play').onclick = () => {
 const STORY = [
   'Algo estranho está acontecendo em uma floresta distante… Os vagalumes estão <b>perdendo seu brilho</b>. Suas luzes, que piscavam em sequências para se comunicar, estão desaparecendo.',
   'Descobri que tudo começou com o desaparecimento do <b>Núcleo da Luz</b>, um artefato lendário que conecta os vagalumes ao equilíbrio da floresta. Ele foi dividido em <b>quatro fragmentos</b>, espalhados por diferentes mundos.',
-  'E eu também estou perdendo minha energia… Preciso da sua ajuda! Encontre os quatro fragmentos pelo <b>' + CONFIG.evento + '</b> e devolva o brilho à floresta.'
+  'E eu também estou perdendo minha energia… Preciso da sua ajuda! <b>Cace os 4 QR Codes da Lumi</b> espalhados pelos mundos do ' + CONFIG.evento + '. Cada código guarda um fragmento e um desafio. Vamos começar?'
 ];
 let storyI = 0;
 function renderStory(){
@@ -631,8 +675,8 @@ $('#b-nick').onclick = () => {
   const v = $('#nick').value.replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
   if (v.length < 2){ $('#nick-err').textContent = 'Use pelo menos 2 caracteres.'; return; }
   $('#nick-err').textContent = '';
-  S.nick = v; if (!S.iniciadoEm) S.iniciadoEm = new Date().toISOString(); save(); syncPlayer(); refreshStart();
-  show('tutorial');
+  S.nick = v; if (!S.iniciadoEm){ S.iniciadoEm = new Date().toISOString(); logLocal({ e:'jogador' }); } save(); syncPlayer(); refreshStart();
+  show('panel');
 };
 function syncCtrlSeg(){ $$('[data-ctrl] button').forEach(b => b.classList.toggle('on', b.dataset.v === P.ctrl)); }
 document.addEventListener('click', e => { const b = e.target.closest('[data-ctrl] button'); if (b){ P.ctrl = b.dataset.v; savePrefs(); syncCtrlSeg(); sfx.tap(); } });
@@ -995,66 +1039,24 @@ document.addEventListener('keydown', e => { if (!F.running) return;
   if (['ArrowUp','w','W'].includes(e.key)) F.keyDir = -1; if (['ArrowDown','s','S'].includes(e.key)) F.keyDir = 1;
   const idx = ['1','2','3','4'].indexOf(e.key); if (idx >= 0 && F.final) F.useSkill(Object.keys(SKILLS)[idx]); });
 document.addEventListener('keyup', e => { if (['ArrowUp','w','W','ArrowDown','s','S'].includes(e.key)) F.keyDir = 0; });
-$('#quit').onclick = () => { if (!F.running) return; F.running = false; $('#skillbar').style.display = 'none'; show(S.tutorialDone ? 'panel' : 'tutorial'); };
+$('#quit').onclick = () => { if (!F.running) return; F.running = false; $('#skillbar').style.display = 'none'; show('panel'); };
 document.addEventListener('visibilitychange', () => { F.lastT = null; });
 
 /* ===================== resultados dos voos ===================== */
 function onTutorialEnd(st){
-  const first = !S.tutorialDone;
-  if (first){ S.tutorialDone = true; S.tutorialScore = st.score; save(); logChallenge('arcade_inicial', `particulas:${st.parts};cristais:${st.crystals};sequencia:${st.maxCombo}`, st.score); syncPlayer(); }
-  sfx.win();
-  $('#s-result').innerHTML = `
-    <h2 class="px" style="font-size:26px;color:var(--yellow)">Primeiro voo concluído!</h2>
-    <div class="bubble thanks-lumi" style="font-size:16.5px;margin:8px 0 4px;text-align:center">Obrigada! Mas ainda estou fraquinha… Preciso dos <b>quatro fragmentos do Núcleo da Luz</b> para recuperar meu brilho.</div>
-    <div class="big-score" style="margin-top:8px">${fmt(st.score)}</div><div class="muted" style="font-size:13px">pontos${first ? '' : ' (o voo de treino só conta na primeira vez)'}</div>
-    <div class="stats">
-      <div class="stat"><b>${st.parts}</b><span>partículas</span></div>
-      <div class="stat"><b>${st.crystals}</b><span>cristais</span></div>
-      <div class="stat"><b>x${Math.min(4, 1 + Math.floor(st.maxCombo/5))}</b><span>maior multiplicador</span></div>
-      <div class="stat"><b>${st.hits}</b><span>colisões</span></div>
-    </div>
-    <div class="fact"><b>Você sabia?</b> A luz dos vagalumes vem de uma reação química: a enzima <b>luciferase</b> catalisa a reação entre a <b>luciferina</b>, o <b>oxigênio</b> e o <b>ATP</b>, liberando luz quase sem calor. É a bioluminescência!</div>
-    <div class="sp"></div>
-    <div class="stack" style="margin-top:14px"><button class="btn" data-go="panel">VER AS MISSÕES</button></div>`;
-  show('result');
+  gameEnd('voo', st.score, {
+    title:'Primeiro voo concluído!',
+    quote: nFrags() < 4 ? 'Obrigada! Mas ainda estou fraquinha… Preciso dos quatro fragmentos do Núcleo da Luz para recuperar meu brilho.' : 'Obrigada! Com os quatro fragmentos, sinto meu brilho voltando!',
+    detail:`${st.parts} partículas · ${st.crystals} cristais · ${st.hits} colisões`,
+    fact:'<b>Você sabia?</b> A luz dos vagalumes vem de uma reação química: a enzima <b>luciferase</b> catalisa a reação entre a <b>luciferina</b>, o <b>oxigênio</b> e o <b>ATP</b>, liberando luz quase sem calor. É a bioluminescência!',
+    result:`particulas:${st.parts};cristais:${st.crystals};sequencia:${st.maxCombo};colisoes:${st.hits}`
+  });
 }
-function finalMessage(score){
-  if (score >= 2200) return 'Uau! Você voou como um verdadeiro Guardião da Luz. A floresta inteira está brilhando com você!';
-  if (score >= 1200) return 'Que voo incrível! Com as quatro habilidades, iluminamos a floresta juntos!';
-  return 'Conseguimos atravessar a floresta! Cada partícula de luz faz diferença.';
-}
-function onFinalEnd(st){
-  const comboB = st.maxCombo*3, perfect = st.hits === 0 ? 100 : 0, total = st.score + comboB + perfect;
-  const prevBest = S.finalBest, firstTime = S.finalPlays === 0;
-  S.finalPlays++; S.finalLast = Object.assign({ total, comboB, perfect }, st); S.finalBest = Math.max(S.finalBest, total);
-  save(); checkAch(); syncPlayer();
-  logChallenge('arcade_final', `particulas:${st.parts};douradas:${st.golds};cristais:${st.crystals};sequencia:${st.maxCombo};colisoes:${st.hits}`, total);
-  sfx.win();
-  $('#s-result').innerHTML = `
-    <h2 class="px">O Grande Voo</h2>
-    <div class="big-score">${fmt(total)}</div>
-    <div class="muted" style="font-size:13px">${total > prevBest && !firstTime ? '🏆 Novo recorde pessoal!' : 'pontuação final do voo'}</div>
-    <div class="stats">
-      <div class="stat"><b>${st.parts + st.golds}</b><span>partículas coletadas</span></div>
-      <div class="stat"><b>${st.crystals}</b><span>cristais</span></div>
-      <div class="stat"><b>+${comboB}</b><span>bônus de sequência (${st.maxCombo} seguidas)</span></div>
-      <div class="stat"><b>+${perfect}</b><span>${perfect ? 'bônus voo sem colisões' : 'sem bônus de voo limpo'}</span></div>
-    </div>
-    <div class="bubble" style="font-size:15px">${finalMessage(total)}</div>
-    <div class="sp"></div>
-    <div class="stack" style="margin-top:14px">
-      <button class="btn" id="b-after-final">CONTINUAR</button>
-      <button class="btn ghost small" id="b-again">VOAR DE NOVO</button>
-    </div>`;
-  $('#b-after-final').onclick = () => { sfx.tap(); show('collective'); };
-  $('#b-again').onclick = () => F.start('final');
-  show('result');
-}
+function onFinalEnd(){ show('panel'); }
 
 /* ===================== PAINEL ===================== */
 RENDER['s-panel'] = () => {
-  const n = nFrags(), all = n === 4;
-  const pg = GAMES.filter(g => n >= g.unlock && !S.games[g.id]);
+  const n = nFrags(), all = n === 4, pend = pendingGames();
   $('#s-panel').innerHTML = `
     <div class="topbar">
       <div class="who">${esc(S.nick)}<small>Explorador(a) da Luz</small></div>
@@ -1067,59 +1069,71 @@ RENDER['s-panel'] = () => {
         <div class="muted" style="font-size:12.5px;margin-top:8px">${n}/4 fragmentos do Núcleo da Luz${all ? ' — <b style="color:var(--lime)">Núcleo restaurado!</b>' : ''}</div>
       </div>
     </div>
-    <div class="worlds">${CONFIG.worlds.map(w => { const f = !!S.frags[w.id], sk = SKILLS[w.habilidade];
-      return `<div class="world ${f ? 'found' : ''}" style="--c:${w.cor}">${f ? '<span class="ok">✓</span>' : ''}<div class="gem"></div>
-        <div class="wn">${esc(w.mundo)}</div><div class="fn">${esc(w.fragmento)}</div><div class="sk">${f ? sk.icone + ' ' + sk.nome : '🔒 ' + sk.nome}</div></div>`; }).join('')}</div>
+    <div class="worlds">${CONFIG.worlds.map(w => { const f = !!S.frags[w.id], g = gameOf(w), done = S.games[w.jogo];
+      return `<div class="world ${f ? 'found' : ''}" style="--c:${w.cor}" ${f && !done ? `data-game="${w.jogo}"` : ''}>${f ? '<span class="ok">✓</span>' : ''}<div class="gem"></div>
+        <div class="wn">${esc(w.mundo)}</div><div class="fn">${esc(w.fragmento)}</div>
+        <div class="sk">${!f ? '🔒 ' + g.nome : done ? `✓ ${g.nome} · +${fmt(done.pts)}` : `▶ Jogar ${g.nome}`}</div></div>`; }).join('')}</div>
     <div class="actions">
-      ${all ? `<button class="btn yellow" id="b-done">${S.united ? '🏆 MISSÃO CUMPRIDA' : '✦ UNIR OS FRAGMENTOS'}</button>
-               <button class="btn" id="b-final">✦ ${S.finalPlays ? 'VOAR DE NOVO: O GRANDE VOO' : 'O GRANDE VOO'}</button>` : `${huntHint()}<button class="btn" id="b-scan">▣ ESCANEAR QR CODE</button>`}
-      ${pg.map(g => `<button class="btn ghost" data-game="${g.id}">${g.icone} JOGAR: ${g.nome.toUpperCase()}</button>`).join('')}
-      ${all && !S.feedbackSent && S.finalPlays ? `<button class="btn ghost small" data-go="feedback">★ AVALIAR A EXPERIÊNCIA</button>` : ''}
+      ${!all ? `${huntHint()}<button class="btn" id="b-scan">▣ ESCANEAR QR CODE</button>` : ''}
+      ${pend.map(w => `<button class="btn ghost" data-game="${w.jogo}">${gameOf(w).icone} JOGAR: ${gameOf(w).nome.toUpperCase()}</button>`).join('')}
+      ${all && !S.feedbackSent ? `<button class="btn yellow big" data-go="feedback">★ AVALIAR A EXPERIÊNCIA</button>` : ''}
+      ${all ? `<button class="btn" id="b-done">${S.united ? '🎁 RETIRE SEU BRINDE!' : '✦ UNIR OS FRAGMENTOS'}</button>` : ''}
     </div>
-    <div class="ach">${ACH.map(a => `<span class="${S.ach[a[0]] ? 'on' : ''}" title="${a[2]}">${a[1]}</span>`).join('')}</div>
+    <div class="ach">${ACH.map(a => `<span class="${S.ach[a[0]] ? 'on' : ''}" title="${a[2]}">🏆 ${a[1]}</span>`).join('')}</div>
     <div class="sp"></div>
-    <div class="nav">
-      <button data-go="skills"><b>✸</b>Habilidades</button>
+    <div class="nav" style="grid-template-columns:1fr 1fr">
       <button data-go="collective"><b>❂</b>Missão coletiva</button>
       <button data-go="ranking"><b>♛</b>Ranking</button>
-      <button id="b-replay"><b>↻</b>Treinar voo</button>
     </div>`;
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#pbar'); if (b) b.style.width = energy() + '%'; }));
   const bs = $('#b-scan'); if (bs) bs.onclick = () => { audio(); qrOpen(); };
-  const bf = $('#b-final'); if (bf) bf.onclick = () => { audio(); F.start('final'); };
-  $$('#s-panel [data-game]').forEach(b => b.onclick = () => startGame(b.dataset.game, 'panel'));
+  $$('#s-panel [data-game]').forEach(b => b.onclick = () => { audio(); startGame(b.dataset.game); });
   const bd = $('#b-done'); if (bd) bd.onclick = () => openDone(!S.united);
   $('#b-set').onclick = () => openSettings();
-  $('#b-replay').onclick = () => F.start('tutorial');
   if (!S.panelIntro) setTimeout(showIntro, 300);
   if (S.pendingCode){ const c = S.pendingCode; S.pendingCode = null; save(); setTimeout(() => registerCode(c), 400); }
 };
 function showIntro(){
   $('#intro-box').innerHTML = `
-    <div class="intro-big">Encontre os 4 códigos espalhados pelos outros mundos do festival!</div>
+    <div class="intro-big">Encontre os 4 códigos espalhados pelos mundos do festival!</div>
     <p style="line-height:1.5;font-size:14.5px;text-align:center;margin:0 0 8px">Em cada mundo há um <b style="color:var(--yellow)">QR Code da Lumi</b>. Escaneie com o jogo.</p>
     <ul style="line-height:1.6;font-size:14px;padding-left:18px;color:var(--muted)">
       <li>Visite os mundos em qualquer ordem.</li>
-      <li>Os fragmentos liberam <b style="color:#fff">minijogos</b> e <b style="color:#fff">habilidades</b>.</li>
-      <li>Com os quatro, você desbloqueia <b style="color:#fff">O Grande Voo</b> e ganha um <b style="color:var(--yellow)">adesivo exclusivo</b>!</li>
+      <li>Cada QR Code libera um <b style="color:#fff">minijogo diferente</b>.</li>
+      <li>Com os quatro, você ganha um <b style="color:var(--yellow)">adesivo exclusivo da Lumi</b>!</li>
     </ul>
     <button class="btn" style="margin:8px auto 0;display:block" id="b-intro-ok">BORA EXPLORAR!</button>`;
   $('#m-intro').classList.add('on');
   $('#b-intro-ok').onclick = () => { S.panelIntro = true; save(); $('#m-intro').classList.remove('on'); };
 }
-function startGame(id, back){ if (id === 'piscadas') memStart(back); else lgStart(back); }
+function startGame(id){
+  if (S.games[id]){ toast('Você já jogou este desafio!'); show('panel'); return; }
+  if (id === 'palavras') wsStart(); else if (id === 'puzzle') pzStart(); else if (id === 'cristais') mxStart(); else show('tutorial');
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-exit]')){ WS = null; X = null; PZ = null; show('panel'); } });
 
-/* ===================== HABILIDADES ===================== */
-RENDER['s-skills'] = () => {
-  $('#s-skills').innerHTML = `
-    <h2 class="px" style="text-align:center">Habilidades</h2>
-    <p class="muted" style="text-align:center;font-size:14px;margin:0 0 14px">Cada fragmento encontrado desbloqueia um poder para O Grande Voo.</p>
-    <div class="stack">${CONFIG.worlds.map(w => { const sk = SKILLS[w.habilidade], on = !!S.frags[w.id];
-      return `<div class="skill-card ${on ? '' : 'locked'}" style="--c:${w.cor}"><div class="ic">${on ? sk.icone : '🔒'}</div>
-        <div><b>${sk.nome}</b><span>${sk.desc}<br><i>${on ? 'Desbloqueada em ' : 'Encontre o fragmento em '}${esc(w.mundo)}</i></span></div></div>`; }).join('')}</div>
-    <div class="sp"></div>
-    <button class="btn ghost small" style="margin:16px auto 0" data-go="panel">VOLTAR AO PAINEL</button>`;
-};
+/* fim de qualquer minijogo */
+function gameEnd(id, pts, o){
+  pts = Math.max(0, Math.round(pts));
+  if (!S.games[id]){ S.games[id] = { pts, at:new Date().toISOString() }; save(); syncPlayer(); logChallenge(GAMES[id].tipo, o.result || '', pts); }
+  checkAch(); sfx.win();
+  const all = nFrags() === 4;
+  $('#s-gameend').innerHTML = `
+    <canvas class="lumi-cv" style="width:170px;height:125px" data-glow="auto"></canvas>
+    <div class="found-title">${o.title}</div>
+    ${o.quote ? `<div class="quote">${o.quote}<small>— LUMI</small></div>` : ''}
+    <div class="big-score">+${fmt(pts)}</div>
+    <div class="muted" style="font-size:13px;margin-top:2px">${o.detail || ''}</div>
+    ${o.fact ? `<div class="fact">${o.fact}</div>` : ''}
+    ${huntHint()}
+    <div class="stack" style="margin-top:4px">
+      ${all ? `<button class="btn yellow" id="ge-done">${S.united ? '🎁 RETIRE SEU BRINDE!' : '✦ UNIR OS FRAGMENTOS'}</button>` : `<button class="btn" id="ge-scan">▣ ESCANEAR PRÓXIMO QR CODE</button>`}
+      <button class="btn ghost small" data-go="panel">VOLTAR AO PAINEL</button>
+    </div>`;
+  show('gameend');
+  const a = $('#ge-scan'); if (a) a.onclick = () => { audio(); qrOpen(); };
+  const b = $('#ge-done'); if (b) b.onclick = () => openDone(!S.united);
+}
 
 /* ===================== QR CODE ===================== */
 let qrStream = null, qrScanning = false, qrPauseUntil = 0, detector = null;
@@ -1164,7 +1178,8 @@ function registerCode(raw){
   if (S.frags[w.id]) return { err:`Você já recuperou a ${w.fragmento}! Procure os outros mundos.` };
   const before = nFrags();
   S.frags[w.id] = { at:new Date().toISOString() };
-  if (nFrags() === 4 && !S.concluidoEm) S.concluidoEm = new Date().toISOString();
+  logLocal({ e:'descoberta', mundo:w.mundo });
+  if (nFrags() === 4 && !S.concluidoEm){ S.concluidoEm = new Date().toISOString(); logLocal({ e:'missao' }); }
   save();
   syncPlayer();
   enqueue('descobertas', { jogador_id:S.id, estacao_id:w.id, data_hora:S.frags[w.id].at, pontuacao:100 + (nFrags() === 4 ? 100 : 0) }, 'jogador_id,estacao_id');
@@ -1177,7 +1192,7 @@ function registerCode(raw){
 /* ===================== DESCOBERTA ===================== */
 let fxState = null;
 function showDiscovery(w, before){
-  const n = nFrags(), g = pendingGame();
+  const n = nFrags(), g = gameOf(w);
   fxState = { kind:'disc', color:hexRgb(w.cor), t0:performance.now()/1000 };
   $('#disc-layer').innerHTML = `
     <span class="tag">${esc(w.mundo)}</span>
@@ -1187,13 +1202,13 @@ function showDiscovery(w, before){
     <div class="energy" style="max-width:380px"><div class="lbl"><span>ENERGIA DA LUMI</span><b id="disc-pct">${(10 + 22.5*before).toLocaleString('pt-BR')}%</b></div><div class="bar"><i id="disc-bar" style="width:${10 + 22.5*before}%"></i></div></div>
     <div class="muted" style="font-size:13px">+100 pontos · ${n}/4 fragmentos</div>
     <div class="stack" style="margin-top:6px">
-      ${n === 4 ? `<button class="btn yellow" id="b-unite">UNIR OS FRAGMENTOS ✦</button>` : ''}
-      ${g ? `<button class="btn ${n === 4 ? 'ghost' : ''}" id="b-disc-game">${g.icone} NOVO MINIJOGO: ${g.nome.toUpperCase()}</button>` : ''}
-      ${n < 4 ? `<button class="btn ghost small" data-go="panel">VOLTAR AO PAINEL</button>` : ''}
+      ${!S.games[w.jogo] ? `<button class="btn" id="b-disc-game">▶ JOGAR: ${g.nome.toUpperCase()}</button>` : ''}
+      ${n === 4 ? `<button class="btn ${S.games[w.jogo] ? '' : 'ghost'}" id="b-unite">UNIR OS FRAGMENTOS ✦</button>` : ''}
+      <button class="btn ghost small" data-go="panel">VOLTAR AO PAINEL</button>
     </div>`;
   show('discovery'); sfx.win();
   setTimeout(() => { $('#disc-bar').style.width = energy() + '%'; $('#disc-pct').textContent = energy().toLocaleString('pt-BR') + '%'; }, 500);
-  const bg = $('#b-disc-game'); if (bg) bg.onclick = () => startGame(g.id, n === 4 ? 'done' : 'panel');
+  const bg = $('#b-disc-game'); if (bg) bg.onclick = () => { audio(); startGame(w.jogo); };
   const bu = $('#b-unite'); if (bu) bu.onclick = () => openDone(true);
 }
 function openDone(anim){
@@ -1235,139 +1250,263 @@ function drawFx(now, cvEl){
   c.globalCompositeOperation = 'source-over';
 }
 
-/* ===================== CÓDIGO DAS PISCADAS ===================== */
-const LIGHTS = [['#5dff7a','✦','verde'], ['#ffe08a','●','amarelo'], ['#53c8ff','◆','azul'], ['#e8e0d4','▲','branco']];
-let M = null;
-$('#mem-lights').innerHTML = LIGHTS.map(([c, s, n], i) => `<button class="light" data-i="${i}" style="--c:${c}" aria-label="${n}">${s}</button>`).join('');
-$$('#mem-lights .light').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); memTap(+b.dataset.i); }));
-function memStart(back='panel'){
-  if (S.games.piscadas){ show(back === 'done' ? 'done' : 'panel'); return; }  // joga uma vez só
-  M = { back, level:0, correct:0, tries:0, seq:[], input:[], busy:true, res:[] };
-  $('#mem-sub').innerHTML = 'Os vagalumes conversam piscando. Observe as luzes e repita a sequência!';
-  $('#mem-end').style.display = 'none'; $('#mem-lights').style.display = ''; $('#mem-exit').style.display = '';
-  show('memory'); memLevels(); setTimeout(memNext, 500);
-}
-function memLevels(){ $('#mem-levels').innerHTML = [0,1,2].map(i => `<i class="${M.res[i] === true ? 'ok' : M.res[i] === false ? 'miss' : i === M.level ? 'cur' : ''}"></i>`).join(''); }
-function memStatus(t){ $('#mem-status').textContent = t; }
-function memNext(){ if (!M) return; if (M.level >= 3) return memEnd();
-  M.seq = Array.from({ length:3 + M.level }, () => Math.random()*4|0); M.tries = 0; memLevels(); memPlay(); }
-function lightOn(i, ms){ const b = $$('#mem-lights .light')[i]; b.classList.add('lit'); beep(TONES[i], ms/1000, 'triangle', 0.07); setTimeout(() => b.classList.remove('lit'), ms); }
-async function memPlay(){
-  const my = M; my.busy = true; my.input = [];
-  memStatus(`Nível ${my.level + 1} · observe ${my.seq.length} piscadas…`); await sleep(800);
-  for (const i of my.seq){ if (M !== my || cur !== 's-memory') return; lightOn(i, 430); await sleep(640); }
-  if (M !== my) return; my.busy = false; memStatus('Sua vez! Repita a sequência');
-}
-function memTap(i){
-  if (!M || M.busy) return; lightOn(i, 220); M.input.push(i);
-  const k = M.input.length - 1;
-  if (M.input[k] !== M.seq[k]){
-    M.busy = true; M.tries++; beep(160, 0.25, 'sawtooth', 0.05);
-    if (M.tries < 2){ memStatus('Quase! Observe de novo…'); setTimeout(memPlay, 1000); }
-    else { M.res[M.level] = false; M.level++; memLevels(); memStatus('Tudo bem! Vamos para o próximo código.'); setTimeout(memNext, 1300); }
-    return;
-  }
-  if (M.input.length === M.seq.length){ M.busy = true; M.correct++; M.res[M.level] = true; M.level++; memLevels(); memStatus('Código correto! +50'); setTimeout(() => [784,988].forEach((f,j) => beep(f, 0.1, 'triangle', 0.06, j*0.08)), 250); setTimeout(memNext, 1100); }
-}
-function memEnd(){
-  const full = M.correct === 3, pts = M.correct*50 + (full ? 50 : 0);
-  S.games.piscadas = { pts, correct:M.correct, full, at:new Date().toISOString() }; save(); syncPlayer();
-  logChallenge('codigo_piscadas', `acertos:${M.correct}/3`, pts);
-  setTimeout(checkAch, 1200); sfx.win();
-  $('#mem-lights').style.display = 'none'; $('#mem-exit').style.display = 'none'; memStatus('');
-  const back = M.back;
-  $('#mem-end').innerHTML = `
-    <div class="found-title" style="font-size:20px">Você recuperou um código de comunicação!</div>
-    <div class="bubble" style="font-size:15.5px">Os vagalumes estão conseguindo se comunicar novamente!</div>
-    <div class="big-score" style="font-size:44px">+${pts}</div>
-    <div class="muted" style="font-size:13px">${M.correct}/3 sequências${full ? ' · bônus de +50 por completar os três níveis!' : ''}</div>
-    <p class="muted" style="font-size:12px;max-width:360px;line-height:1.45">Esta é uma brincadeira inspirada nos sinais luminosos dos vagalumes, que piscam em padrões para se comunicar — não reproduz os padrões reais de nenhuma espécie.</p>
-    ${huntHint()}
-    ${nFrags() < 4 ? `<button class="btn" id="b-mem-scan">▣ ESCANEAR PRÓXIMO QR CODE</button>` : ''}
-    <button class="btn ${nFrags() < 4 ? 'ghost small' : ''}" id="b-mem-back">${back === 'done' ? 'CONTINUAR' : 'VOLTAR AO PAINEL'}</button>`;
-  $('#mem-end').style.display = 'flex';
-  $('#b-mem-back').onclick = () => { sfx.tap(); back === 'done' ? openDone(false) : show('panel'); };
-  const ms = $('#b-mem-scan'); if (ms) ms.onclick = () => { audio(); qrOpen(); };
-  M = null;
-}
-$('#mem-exit').onclick = () => { const b = M && M.back; M = null; b === 'done' ? openDone(false) : show('panel'); };
-
-/* ===================== MINIJOGO: APAGUE O EXCESSO ===================== */
-/* Luz artificial em excesso atrapalha a comunicação luminosa dos vagalumes.
-   Toque nas lâmpadas para apagá-las; não toque nos vagalumes. */
-const LG_DUR = 25;
-let L = null;
-$('#lg-grid').innerHTML = Array.from({ length:12 }, (_, i) => `<button class="cell" data-i="${i}" aria-label="casa ${i+1}"></button>`).join('');
-const lgCells = $$('#lg-grid .cell');
-lgCells.forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); lgTap(+b.dataset.i); }));
-function lgRender(i){ const c = L && L.cells[i];
-  lgCells[i].innerHTML = !c ? '' : c.type === 'lamp' ? '<div class="lamp"></div>' : `<div class="ff" style="background-image:url(${ASSET.lumiOn})"></div>`; }
-function lgStart(back='panel'){
-  if (S.games.apague){ show(back === 'done' ? 'done' : 'panel'); return; }
-  L = { back, t:0, score:0, off:0, missed:0, ff:0, cells:Array(12).fill(null), spawnT:0.3, running:false, last:null };
-  lgCells.forEach((_, i) => lgRender(i));
-  $('#lg-end').style.display = 'none'; $('#lg-grid').style.display = ''; $('#lg-exit').style.display = '';
-  $('#lg-score').textContent = '0 pts'; $('#lg-time').textContent = LG_DUR + 's'; $('#lg-bar').style.width = '100%';
-  show('lights'); $('#lg-status').textContent = 'Prepare-se…';
-  const my = L; setTimeout(() => { if (L === my){ L.running = true; $('#lg-status').textContent = 'Apague as luzes!'; } }, 1400);
-}
-function lgUpdate(now){
-  if (!L || !L.running) return;
-  if (L.last == null) L.last = now;
-  const dt = Math.min(0.05, now - L.last); L.last = now; L.t += dt;
-  const p = clamp(L.t/LG_DUR, 0, 1);
-  if (L.t >= LG_DUR) return lgEnd();
-  L.cells.forEach((c, i) => { if (c && now > c.until){ if (c.type === 'lamp') L.missed++; L.cells[i] = null; lgRender(i); } });
-  L.spawnT -= dt;
-  if (L.spawnT <= 0){
-    L.spawnT = lerp(0.8, 0.4, p);
-    const free = L.cells.map((c, i) => c ? -1 : i).filter(i => i >= 0);
-    if (free.length){
-      const i = free[Math.random()*free.length|0], ff = Math.random() < 0.2 + 0.1*p;
-      L.cells[i] = { type: ff ? 'ff' : 'lamp', until: now + (ff ? 1.3 : lerp(1.8, 1.05, p)) }; lgRender(i);
+/* ===================== MINIJOGO 1 · SUMMIT TOUR · CAÇA-PALAVRAS ===================== */
+const WS_WORDS = ['EMICIDA', 'TECNOLOGIA', 'VIBRANTE', 'TIROLESA'];  // edite aqui (máx. 10 letras)
+const WS_N = 10, WS_COLORS = ['#ffd447', '#6f8cff', '#ff6ad5', '#b98cff'];
+let WS = null;
+function wsBuild(){
+  const dirs = [[0,1],[1,0],[1,1],[-1,1]];  // dificuldade média: horizontal, vertical e duas diagonais (sem palavras invertidas)
+  for (let att = 0; att < 300; att++){
+    const g = Array.from({ length:WS_N }, () => Array(WS_N).fill('')), placed = [];
+    let ok = true;
+    for (const w of [...WS_WORDS].sort((a,b) => b.length - a.length)){
+      let done = false;
+      for (let t = 0; t < 400 && !done; t++){
+        const [dr, dc] = dirs[Math.random()*dirs.length|0];
+        const r0 = Math.random()*WS_N|0, c0 = Math.random()*WS_N|0, r1 = r0 + dr*(w.length-1), c1 = c0 + dc*(w.length-1);
+        if (r1 < 0 || r1 >= WS_N || c1 < 0 || c1 >= WS_N) continue;
+        let fit = true;
+        for (let i = 0; i < w.length; i++){ const ch = g[r0+dr*i][c0+dc*i]; if (ch && ch !== w[i]){ fit = false; break; } }
+        if (!fit) continue;
+        for (let i = 0; i < w.length; i++) g[r0+dr*i][c0+dc*i] = w[i];
+        placed.push(w); done = true;
+      }
+      if (!done){ ok = false; break; }
     }
+    if (!ok) continue;
+    const AB = 'ABCDEFGHIJLMNOPRSTUVZ';
+    for (const row of g) for (let c = 0; c < WS_N; c++) if (!row[c]) row[c] = AB[Math.random()*AB.length|0];
+    return g;
   }
-  $('#lg-time').textContent = Math.ceil(LG_DUR - L.t) + 's';
-  $('#lg-bar').style.width = ((1 - p)*100) + '%';
 }
-function lgTap(i){
-  if (!L || !L.running) return;
-  const c = L.cells[i], el = lgCells[i]; if (!c) return;
-  el.classList.remove('off','bad'); void el.offsetWidth;
-  if (c.type === 'lamp'){ L.off++; L.score += 5; el.classList.add('off'); beep(520 + Math.min(L.off, 30)*12, 0.06, 'triangle', 0.05); }
-  else { L.ff++; L.score = Math.max(0, L.score - 10); el.classList.add('bad'); $('#lg-status').textContent = 'Ops! Esse é um vagalume!'; beep(150, 0.2, 'sawtooth', 0.05); if (navigator.vibrate) navigator.vibrate(60); }
-  L.cells[i] = null; lgRender(i);
-  $('#lg-score').textContent = L.score + ' pts';
+function wsStart(){
+  WS = { g:wsBuild(), found:{}, start:null, tapStart:null, t0:performance.now() };
+  $('#ws-grid').innerHTML = WS.g.map((row, r) => row.map((ch, c) => `<div class="wc" data-r="${r}" data-c="${c}">${ch}</div>`).join('')).join('');
+  wsWords(); show('words');
 }
-function lgEnd(){
-  const my = L; my.running = false;
-  const pts = my.score;
-  S.games.apague = { pts, apagadas:my.off, perdidas:my.missed, vagalumes:my.ff, at:new Date().toISOString() }; save(); syncPlayer();
-  logChallenge('apague_excesso', `apagadas:${my.off};perdidas:${my.missed};vagalumes_tocados:${my.ff}`, pts);
-  setTimeout(checkAch, 1200); sfx.win();
-  $('#lg-grid').style.display = 'none'; $('#lg-exit').style.display = 'none'; $('#lg-status').textContent = '';
-  $('#lg-end').innerHTML = `
-    <div class="found-title" style="font-size:22px">A noite voltou a ficar escura!</div>
-    <div class="quote" style="font-size:18px">Agora meus amigos conseguem ver nossos sinais de luz de novo!<small>— LUMI</small></div>
-    <div class="big-score" style="font-size:44px">+${pts}</div>
-    <div class="muted" style="font-size:13px">${my.off} luzes apagadas${my.ff ? ` · ${my.ff} vagalume(s) assustado(s)` : ' · nenhum vagalume assustado!'}</div>
-    <div class="fact" style="font-size:13px"><b>Você sabia?</b> Os vagalumes usam piscadas para encontrar seus pares. Luzes artificiais fortes à noite "ofuscam" esses sinais, e é por isso que apagar luzes desnecessárias ajuda a proteger os vagalumes.</div>
-    ${huntHint()}
-    ${nFrags() < 4 ? `<button class="btn" id="b-lg-scan">▣ ESCANEAR PRÓXIMO QR CODE</button>` : ''}
-    <button class="btn ${nFrags() < 4 ? 'ghost small' : ''}" id="b-lg-back">${my.back === 'done' ? 'CONTINUAR' : 'VOLTAR AO PAINEL'}</button>`;
-  $('#lg-end').style.display = 'flex';
-  $('#b-lg-back').onclick = () => { sfx.tap(); my.back === 'done' ? openDone(false) : show('panel'); };
-  const ls = $('#b-lg-scan'); if (ls) ls.onclick = () => { audio(); qrOpen(); };
-  L = null;
+function wsWords(){
+  $('#ws-words').innerHTML = WS_WORDS.map((w, i) => `<span class="${WS.found[w] ? 'ok' : ''}" style="--c:${WS_COLORS[i]}">${w}</span>`).join('');
+  $('#ws-count').textContent = `${Object.keys(WS.found).length}/${WS_WORDS.length} palavras`;
 }
-$('#lg-exit').onclick = () => { const b = L && L.back; L = null; b === 'done' ? openDone(false) : show('panel'); };
+function wsCell(e){ const el = document.elementFromPoint(e.clientX, e.clientY); return el && el.classList.contains('wc') ? { r:+el.dataset.r, c:+el.dataset.c } : null; }
+function wsLine(a, b){
+  if (!a || !b) return null;
+  const dr = Math.sign(b.r - a.r), dc = Math.sign(b.c - a.c), lr = Math.abs(b.r - a.r), lc = Math.abs(b.c - a.c);
+  if (lr && lc && lr !== lc) return null;
+  const n = Math.max(lr, lc) + 1, cells = [];
+  for (let i = 0; i < n; i++) cells.push({ r:a.r + dr*i, c:a.c + dc*i });
+  return cells;
+}
+function wsMark(cells){ $$('#ws-grid .wc.sel').forEach(x => x.classList.remove('sel')); (cells || []).forEach(p => $(`#ws-grid .wc[data-r="${p.r}"][data-c="${p.c}"]`).classList.add('sel')); }
+function wsCheck(cells){
+  if (!cells || cells.length < 3) return false;
+  const str = cells.map(p => WS.g[p.r][p.c]).join(''), rev = [...str].reverse().join('');
+  const w = WS_WORDS.find(x => (x === str || x === rev) && !WS.found[x]);
+  if (!w) return false;
+  const col = WS_COLORS[WS_WORDS.indexOf(w)];
+  WS.found[w] = true;
+  cells.forEach(p => { const el = $(`#ws-grid .wc[data-r="${p.r}"][data-c="${p.c}"]`); el.classList.add('found'); el.style.setProperty('--c', col); });
+  [659, 880, 1047].forEach((f, i) => beep(f, 0.1, 'triangle', 0.06, i*0.06));
+  wsWords();
+  if (Object.keys(WS.found).length === WS_WORDS.length){
+    const secs = Math.round((performance.now() - WS.t0)/1000), bonus = secs < 60 ? 60 : secs < 120 ? 40 : secs < 180 ? 20 : 0;
+    const pts = WS_WORDS.length*35 + bonus; WS = null;
+    setTimeout(() => gameEnd('palavras', pts, { title:'Você encontrou todas as palavras!',
+      quote:'Que olhar atento! Assim como você, os vagalumes enxergam muito bem no escuro.',
+      detail:`${secs} segundos · bônus de tempo +${bonus}`, result:`tempo_s:${secs}` }), 700);
+  }
+  return true;
+}
+(() => {
+  const grid = $('#ws-grid');
+  grid.addEventListener('pointerdown', e => { if (!WS) return; e.preventDefault(); const c = wsCell(e); if (!c) return; WS.start = c; wsMark([c]); try { grid.setPointerCapture(e.pointerId); } catch(_){} });
+  grid.addEventListener('pointermove', e => { if (!WS || !WS.start) return; e.preventDefault(); const c = wsCell(e); const l = wsLine(WS.start, c); if (l) wsMark(l); });
+  grid.addEventListener('pointerup', e => {
+    if (!WS || !WS.start) return;
+    const end = wsCell(e) || WS.start, a = WS.start; WS.start = null;
+    if (end.r === a.r && end.c === a.c){                  // toque simples: modo "primeira e última letra"
+      if (WS.tapStart && !(WS.tapStart.r === a.r && WS.tapStart.c === a.c)){
+        const l = wsLine(WS.tapStart, a); WS.tapStart = null; if (!wsCheck(l)) beep(180, 0.15, 'sawtooth', 0.04); wsMark([]); return;
+      }
+      WS.tapStart = a; wsMark([a]); return;
+    }
+    WS.tapStart = null;
+    if (!wsCheck(wsLine(a, end))) beep(180, 0.15, 'sawtooth', 0.04);
+    wsMark([]);
+  });
+})();
+
+/* ===================== MINIJOGO 2 · FICIÊNCIAS · QUEBRA-CABEÇA DESLIZANTE ===================== */
+let PZ = null, PZ_IMG = null;
+function pzImage(){
+  if (PZ_IMG) return PZ_IMG;
+  const n = 480, c = document.createElement('canvas'); c.width = c.height = n; const x = c.getContext('2d');
+  const g = x.createRadialGradient(n/2, n*0.45, 0, n/2, n/2, n*0.75); g.addColorStop(0, '#5a2470'); g.addColorStop(1, '#2a0e36');
+  x.fillStyle = g; x.fillRect(0, 0, n, n);
+  x.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 26; i++) dg(x, glowSprite(255,212,71), rh(i,3)*n, rh(i,5)*n, 4 + rh(i,7)*8, 0.6);
+  x.globalCompositeOperation = 'source-over';
+  drawLumi(x, n*0.5, n*0.5, n*0.34, 1, 1.2, 0, false, n*0.48);
+  return PZ_IMG = c.toDataURL('image/jpeg', 0.9);
+}
+function pzStart(){
+  const img = pzImage();
+  const B = Math.min(330, Math.round(window.innerWidth*0.86)), T = B/3;
+  PZ = { pos:[0,1,2,3,4,5,6,7], blank:8, moves:0, B, T, busy:false };
+  let last = -1;  // embaralha com movimentos válidos (sempre tem solução)
+  for (let i = 0; i < 90 || pzSolved(); i++){
+    const nb = pzNeighbors(PZ.blank).filter(s => s !== last), s = nb[Math.random()*nb.length|0];
+    const k = PZ.pos.indexOf(s); last = PZ.blank; PZ.pos[k] = PZ.blank; PZ.blank = s;
+  }
+  const board = $('#pz-board'); board.style.width = board.style.height = B + 'px'; board.style.setProperty('--img', `url(${img})`);
+  board.innerHTML = PZ.pos.map((_, k) => `<div class="pz" data-k="${k}" style="width:${T}px;height:${T}px;background-image:url(${img});background-size:${B}px ${B}px;background-position:${-(k%3)*T}px ${-Math.floor(k/3)*T}px"></div>`).join('') + '<div class="pz-peek"></div>';
+  $$('#pz-board .pz').forEach(el => el.addEventListener('pointerdown', e => { e.preventDefault(); pzTap(+el.dataset.k); }));
+  pzRender(); $('#pz-moves').textContent = '0 movimentos'; show('puzzle');
+}
+function pzNeighbors(s){ const r = Math.floor(s/3), c = s%3, out = []; if (r > 0) out.push(s-3); if (r < 2) out.push(s+3); if (c > 0) out.push(s-1); if (c < 2) out.push(s+1); return out; }
+function pzSolved(){ return PZ.pos.every((s, k) => s === k); }
+function pzRender(){ $$('#pz-board .pz').forEach(el => { const s = PZ.pos[+el.dataset.k]; el.style.transform = `translate(${(s%3)*PZ.T}px,${Math.floor(s/3)*PZ.T}px)`; }); }
+function pzTap(k){
+  if (!PZ || PZ.busy) return;
+  const s = PZ.pos[k]; if (!pzNeighbors(PZ.blank).includes(s)) { beep(180, 0.08, 'sawtooth', 0.03); return; }
+  PZ.pos[k] = PZ.blank; PZ.blank = s; PZ.moves++; beep(440 + PZ.moves%5*60, 0.05, 'triangle', 0.04);
+  pzRender(); $('#pz-moves').textContent = PZ.moves + ' movimentos';
+  if (pzSolved()){
+    PZ.busy = true; const moves = PZ.moves, pts = clamp(200 - Math.max(0, moves - 30)*2, 80, 200);
+    $('#pz-board').classList.add('solved');
+    setTimeout(() => { $('#pz-board').classList.remove('solved'); PZ = null;
+      gameEnd('puzzle', pts, { title:'Imagem montada!', quote:'Você me montou inteirinha! Peça por peça, a ciência também vai juntando descobertas.',
+        detail:`${moves} movimentos`, result:`movimentos:${moves}` }); }, 1300);
+  }
+}
+(() => {
+  const peek = on => $('#pz-board').classList.toggle('peek', on);
+  const b = $('#pz-peek');
+  b.addEventListener('pointerdown', e => { e.preventDefault(); peek(true); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => peek(false)));
+})();
+
+/* ===================== MINIJOGO 3 · RME · COMBINA CRISTAIS ===================== */
+const MX_N = 7, MX_T = 5, MX_MOVES = 15;
+const MX_ICON = [
+  () => `<img src="${ASSET.lumiOn}" alt="Lumi" draggable="false">`,
+  () => `<svg viewBox="0 0 24 24" aria-label="microfone"><rect x="8.5" y="2" width="7" height="12" rx="3.5" fill="#e8e0d4"/><path d="M8.5 7h7M8.5 10h7" stroke="#b6a3c4" stroke-width="1"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0" stroke="#ff6ad5" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 17.5V21M8.5 21.5h7" stroke="#ff6ad5" stroke-width="2" stroke-linecap="round"/></svg>`,
+  () => `<i class="lumen"></i>`,
+  () => `<i class="gem g1"></i>`,
+  () => `<i class="gem g2"></i>`
+];
+let X = null;
+function mxNew(){ return { id:X.nid++, t:Math.random()*MX_T|0 }; }
+function mxFill(){
+  for (let r = 0; r < MX_N; r++){ X.grid[r] = []; for (let c = 0; c < MX_N; c++){
+    let p; do { p = mxNew(); } while ((c >= 2 && X.grid[r][c-1].t === p.t && X.grid[r][c-2].t === p.t) || (r >= 2 && X.grid[r-1][c].t === p.t && X.grid[r-2][c].t === p.t));
+    X.grid[r][c] = p; } }
+}
+function mxStart(){
+  const B = Math.min(336, Math.round(window.innerWidth*0.9));
+  X = { nid:0, grid:[], els:new Map(), moves:MX_MOVES, score:0, busy:false, sel:null, drag:null, B, S:B/MX_N };
+  const board = $('#mx-board'); board.innerHTML = ''; board.style.width = board.style.height = B + 'px'; board.style.setProperty('--s', X.S + 'px');
+  do { X.grid = []; mxFill(); } while (!mxHasMove());
+  show('match'); mxRender(); mxHud(); $('#mx-status').textContent = 'Você tem ' + MX_MOVES + ' jogadas!';
+}
+function mxHud(){ $('#mx-moves').textContent = X.moves + (X.moves === 1 ? ' jogada' : ' jogadas'); $('#mx-score').textContent = X.score + ' pts'; }
+function mxRender(){
+  const board = $('#mx-board'), alive = new Set();
+  for (let r = 0; r < MX_N; r++) for (let c = 0; c < MX_N; c++){
+    const p = X.grid[r][c]; if (!p) continue; alive.add(p.id);
+    let el = X.els.get(p.id);
+    if (!el){
+      el = document.createElement('div'); el.className = 'pc'; el.innerHTML = `<div class="in t${p.t}">${MX_ICON[p.t]()}</div>`;
+      el.style.transform = `translate(${c*X.S}px,${(p.from ?? r)*X.S}px)`; board.appendChild(el); X.els.set(p.id, el); el.getBoundingClientRect();
+    }
+    el.dataset.r = r; el.dataset.c = c; el.style.transform = `translate(${c*X.S}px,${r*X.S}px)`;
+    el.classList.toggle('sel', !!(X.sel && X.sel.r === r && X.sel.c === c)); delete p.from;
+  }
+  for (const [id, el] of X.els) if (!alive.has(id)){ el.remove(); X.els.delete(id); }
+}
+function mxMatches(){
+  const m = new Set(), G = X.grid;
+  for (let r = 0; r < MX_N; r++){ let run = 1; for (let c = 1; c <= MX_N; c++){
+    if (c < MX_N && G[r][c] && G[r][c-1] && G[r][c].t === G[r][c-1].t) run++;
+    else { if (run >= 3) for (let k = 1; k <= run; k++) m.add(r + ',' + (c-k)); run = 1; } } }
+  for (let c = 0; c < MX_N; c++){ let run = 1; for (let r = 1; r <= MX_N; r++){
+    if (r < MX_N && G[r][c] && G[r-1][c] && G[r][c].t === G[r-1][c].t) run++;
+    else { if (run >= 3) for (let k = 1; k <= run; k++) m.add((r-k) + ',' + c); run = 1; } } }
+  return m;
+}
+function mxSwap(a, b){ const G = X.grid, t = G[a.r][a.c]; G[a.r][a.c] = G[b.r][b.c]; G[b.r][b.c] = t; }
+function mxHasMove(){
+  for (let r = 0; r < MX_N; r++) for (let c = 0; c < MX_N; c++) for (const [dr, dc] of [[0,1],[1,0]]){
+    const b = { r:r+dr, c:c+dc }; if (b.r >= MX_N || b.c >= MX_N) continue;
+    mxSwap({ r, c }, b); const ok = mxMatches().size > 0; mxSwap({ r, c }, b); if (ok) return true;
+  }
+  return false;
+}
+async function mxTry(a, b){
+  if (!X || X.busy || b.r < 0 || b.r >= MX_N || b.c < 0 || b.c >= MX_N) return;
+  const my = X; my.busy = true; my.sel = null;
+  mxSwap(a, b); mxRender(); await sleep(220);
+  if (X !== my) return;
+  if (!mxMatches().size){ mxSwap(a, b); mxRender(); beep(170, 0.15, 'sawtooth', 0.04); await sleep(220); my.busy = false; return; }
+  my.moves--; mxHud();
+  await mxResolve(my);
+  if (X !== my) return;
+  my.busy = false; mxHud();
+  if (my.moves <= 0) return mxEnd();
+  if (!mxHasMove()){ $('#mx-status').textContent = 'Sem jogadas possíveis: embaralhando…'; await sleep(600);
+    do { for (const row of my.grid) for (const p of row) p.t = Math.random()*MX_T|0; } while (mxMatches().size || !mxHasMove());
+    my.els.forEach(el => el.remove()); my.els.clear(); mxRender(); }
+}
+async function mxResolve(my){
+  let combo = 1;
+  for (;;){
+    const m = mxMatches(); if (!m.size) break;
+    my.score += m.size*3*combo; mxHud();
+    $('#mx-status').textContent = combo > 1 ? `Combo x${combo}! ✨` : (m.size >= 5 ? 'Incrível! 🌟' : m.size === 4 ? 'Ótimo!' : 'Boa!');
+    for (const k of m){ const [r, c] = k.split(',').map(Number); const el = my.els.get(my.grid[r][c].id); if (el) el.classList.add('pop'); }
+    [523, 659, 784].forEach((f, i) => beep(f*(1 + (combo-1)*0.12), 0.08, 'triangle', 0.05, i*0.04));
+    await sleep(230); if (X !== my) return;
+    for (const k of m){ const [r, c] = k.split(',').map(Number); my.grid[r][c] = null; }
+    for (let c = 0; c < MX_N; c++){
+      let w = MX_N - 1;
+      for (let r = MX_N - 1; r >= 0; r--) if (my.grid[r][c]){ if (w !== r){ my.grid[w][c] = my.grid[r][c]; my.grid[r][c] = null; } w--; }
+      const empty = w + 1;
+      for (let r = w; r >= 0; r--){ const p = mxNew(); p.from = r - empty; my.grid[r][c] = p; }
+    }
+    mxRender(); await sleep(280); combo++;
+  }
+}
+function mxEnd(){
+  const pts = X.score; X = null;
+  setTimeout(() => gameEnd('cristais', pts, { title:'Fim das jogadas!', quote:'Que show! Cristais, música e muita luz: a floresta está vibrando de novo!',
+    detail:`${MX_MOVES} jogadas`, result:`jogadas:${MX_MOVES}` }), 500);
+}
+(() => {
+  const board = $('#mx-board');
+  board.addEventListener('pointerdown', e => {
+    if (!X || X.busy) return; const el = e.target.closest('.pc'); if (!el) return; e.preventDefault();
+    X.drag = { r:+el.dataset.r, c:+el.dataset.c, x:e.clientX, y:e.clientY };
+    try { board.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  board.addEventListener('pointermove', e => {
+    if (!X || !X.drag) return; const d = X.drag, dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < X.S*0.35) return;
+    X.drag = null; const b = Math.abs(dx) > Math.abs(dy) ? { r:d.r, c:d.c + Math.sign(dx) } : { r:d.r + Math.sign(dy), c:d.c };
+    mxTry({ r:d.r, c:d.c }, b);
+  });
+  board.addEventListener('pointerup', () => {
+    if (!X || !X.drag) return; const d = X.drag; X.drag = null;
+    if (X.sel && Math.abs(X.sel.r - d.r) + Math.abs(X.sel.c - d.c) === 1){ const a = X.sel; mxTry(a, { r:d.r, c:d.c }); return; }
+    X.sel = (X.sel && X.sel.r === d.r && X.sel.c === d.c) ? null : { r:d.r, c:d.c }; mxRender(); sfx.tap();
+  });
+})();
 
 /* ===================== MISSÃO CUMPRIDA + RECOMPENSA ===================== */
 let clockTimer = null;
 RENDER['s-done'] = () => {
   if (nFrags() < 4){ $('#done-layer').innerHTML = `<h2 class="px">Recompensa bloqueada</h2><p>Encontre os <b>quatro fragmentos</b> para ganhar o adesivo exclusivo da Lumi. Você tem ${nFrags()}/4.</p><button class="btn" data-go="panel">VOLTAR</button>`; return; }
   if (!fxState || fxState.kind !== 'core') fxState = { kind:'core', t0:performance.now()/1000 - 30 };
-  const dt = new Date(S.concluidoEm || Date.now()), pg = GAMES.filter(g => !S.games[g.id]);
+  const dt = new Date(S.concluidoEm || Date.now()), pg = pendingGames();
   $('#done-layer').innerHTML = `
     <div style="height:215px"></div>
     <span class="tag" style="color:var(--yellow);border-color:rgba(255,212,71,.5)">CONQUISTA: GUARDIÃO DA LUZ</span>
@@ -1380,21 +1519,19 @@ RENDER['s-done'] = () => {
       </div>
       ${S.brindeEntregue ? `<div style="margin-top:10px"><span class="stamp">ADESIVO ENTREGUE · ${new Date(S.brindeEntregue).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span></div>` : ''}
     </div>
-    <p style="font-weight:800;color:var(--yellow);margin:2px 0;max-width:380px">Mostre esta tela no ponto de distribuição e retire seu adesivo exclusivo da Lumi!</p>
+    <p style="font-weight:800;color:var(--yellow);margin:2px 0;max-width:380px;font-size:16px">Mostre esta tela ${esc(CONFIG.localBrinde)} e retire seu adesivo exclusivo da Lumi!</p>
     <div class="stats" style="margin:4px 0">
       <div class="stat"><b>${fmt(totalScore())}</b><span>pontuação total</span></div>
-      <div class="stat"><b>${S.finalPlays ? fmt(S.finalBest) : '—'}</b><span>melhor Grande Voo</span></div>
+      <div class="stat"><b>${nGames()}/4</b><span>desafios concluídos</span></div>
     </div>
     <div class="stack">
-      <button class="btn" id="b-done-fly">${S.finalPlays ? 'VOAR DE NOVO: O GRANDE VOO' : 'INICIAR O GRANDE VOO'}</button>
-      ${pg.map(g => `<button class="btn ghost small" data-game="${g.id}">${g.icone} JOGAR: ${g.nome.toUpperCase()}</button>`).join('')}
+      ${!S.feedbackSent ? `<button class="btn yellow big" data-go="feedback">★ AVALIAR A EXPERIÊNCIA</button>` : ''}
+      ${pg.map(w => `<button class="btn ghost small" data-game="${w.jogo}">${gameOf(w).icone} JOGAR: ${gameOf(w).nome.toUpperCase()}</button>`).join('')}
       <button class="btn ghost small" data-go="collective">MISSÃO COLETIVA E RANKING</button>
-      ${!S.feedbackSent ? `<button class="btn ghost small" data-go="feedback">AVALIAR A EXPERIÊNCIA</button>` : ''}
       <button class="link" data-go="panel">Voltar ao painel</button>
       ${!S.brindeEntregue ? `<button class="link" id="b-staff" style="font-size:12px">Equipe: registrar entrega do adesivo</button>` : ''}
     </div>`;
-  $('#b-done-fly').onclick = () => F.start('final');
-  $$('#done-layer [data-game]').forEach(b => b.onclick = () => startGame(b.dataset.game, 'done'));
+  $$('#done-layer [data-game]').forEach(b => b.onclick = () => startGame(b.dataset.game));
   const tick = () => { const c = $('#clock'); if (c) c.textContent = new Date().toLocaleTimeString('pt-BR'); };
   clearInterval(clockTimer); tick(); clockTimer = setInterval(tick, 1000);
   const st = $('#b-staff');
@@ -1474,7 +1611,7 @@ function drawForest(now){
 RENDER['s-ranking'] = () => {
   $('#s-ranking').innerHTML = `
     <h2 class="px" style="text-align:center">Ranking</h2>
-    <p class="muted" style="text-align:center;font-size:13px;margin:0 0 12px">Desempenho no Grande Voo + exploração. Em caso de empate, quem completou a missão fica à frente.</p>
+    <p class="muted" style="text-align:center;font-size:13px;margin:0 0 12px">Fragmentos encontrados + pontos nos desafios. Em caso de empate, quem completou a missão fica à frente.</p>
     <div id="rank-body" style="width:100%"><p class="muted" style="text-align:center">Carregando…</p></div>
     <div class="sp"></div>
     <div class="stack" style="margin-top:14px">
@@ -1483,11 +1620,11 @@ RENDER['s-ranking'] = () => {
       <button class="btn ghost small" data-go="panel">PAINEL</button></div>`;
   loadRanking();
 };
-const rankSort = (a,b) => (b.pontuacao - a.pontuacao) || (b.fragmentos - a.fragmentos) || (b.pontuacao_final - a.pontuacao_final);
+const rankSort = (a,b) => (b.pontuacao - a.pontuacao) || (b.fragmentos - a.fragmentos) || ((b.desafios||0) - (a.desafios||0));
 function rankRows(list){
   return `<div class="rank">${list.map((r,i) => `<div class="row ${i<3 ? 'g' + (i+1) : ''} ${r.id === S.id ? 'me' : ''}">
     <div class="pos">${i<3 ? ['①','②','③'][i] : i+1}</div>
-    <div class="nm">${esc(r.apelido)}${r.id === S.id ? ' <span style="color:var(--blue);font-size:12px">(você)</span>' : ''}<small>${r.fragmentos}/4 fragmentos · Grande Voo: ${fmt(r.pontuacao_final || 0)}</small></div>
+    <div class="nm">${esc(r.apelido)}${r.id === S.id ? ' <span style="color:var(--blue);font-size:12px">(você)</span>' : ''}<small>${r.fragmentos}/4 fragmentos · ${r.desafios || 0}/4 desafios</small></div>
     <div class="pt">${fmt(r.pontuacao)}</div></div>`).join('') || '<p class="muted" style="text-align:center">Ainda não há jogadores no ranking.</p>'}</div>`;
 }
 async function loadRanking(){
@@ -1524,6 +1661,7 @@ RENDER['s-feedback'] = () => {
   $('#b-fb').onclick = () => {
     if (!nota){ $('#fb-err').textContent = 'Escolha de 1 a 5 estrelas.'; return; }
     enqueue('feedback', { id:uuid(), nota, gostou:$('#fb1').value.trim().slice(0,400) || null, melhorar:$('#fb2').value.trim().slice(0,400) || null, data:new Date().toISOString() }, 'id');
+    logLocal({ e:'feedback', nota, gostou:$('#fb1').value.trim().slice(0,400), melhorar:$('#fb2').value.trim().slice(0,400) });
     S.feedbackSent = true; save(); sfx.win(); feedbackThanks();
   };
 };
@@ -1553,18 +1691,112 @@ function openSettings(newPlayer=false){
     <div class="stack">
       ${newPlayer ? `<button class="btn" id="b-cont2">CONTINUAR A MISSÃO DE ${esc(S.nick).toUpperCase()}</button>` : ''}
       <button class="btn ghost small" id="b-reset">INICIAR NOVO JOGADOR</button>
-      <button class="link" id="b-close">Fechar</button></div>`;
+      <button class="link" id="b-close">Fechar</button>
+      ${newPlayer ? '' : '<button class="link" id="b-gestor" style="font-size:12px">Painel do gestor</button>'}</div>`;
   $('#m-settings').classList.add('on'); syncCtrlSeg();
   const ss = $('#seg-sound');
   if (ss){ const upd = () => $$('#seg-sound button').forEach(b => b.classList.toggle('on', (b.dataset.v === '1') === P.sound)); upd();
     $$('#seg-sound button').forEach(b => b.onclick = () => { P.sound = b.dataset.v === '1'; savePrefs(); upd(); sfx.tap(); }); }
-  const c2 = $('#b-cont2'); if (c2) c2.onclick = () => { $('#m-settings').classList.remove('on'); show(S.tutorialDone ? 'panel' : 'tutorial'); };
+  const c2 = $('#b-cont2'); if (c2) c2.onclick = () => { $('#m-settings').classList.remove('on'); show('panel'); };
   $('#b-close').onclick = () => $('#m-settings').classList.remove('on');
+  const bg = $('#b-gestor'); if (bg) bg.onclick = () => { $('#m-settings').classList.remove('on'); location.hash = 'gestor'; show('admin'); };
   $('#b-reset').onclick = e => {
     const b = e.currentTarget;
     if (!b.dataset.arm){ b.dataset.arm = 1; b.textContent = 'TOQUE DE NOVO PARA CONFIRMAR'; return; }
     syncPlayer(); S = DEF(); save(); $('#m-settings').classList.remove('on'); $('#nick').value = ''; refreshStart(); storyI = 0; renderStory(); show('story');
   };
+}
+
+/* ===================== PAINEL DO GESTOR (abrir com #gestor no fim do link) ===================== */
+const GAME_NAMES = { caca_palavras:'Caça-Palavras (Summit Tour)', quebra_cabeca:'Quebra-Cabeça (FICiências)', combina_cristais:'Combina Cristais (RME)', primeiro_voo:'Primeiro Voo (Parquetec)' };
+let ADM = null;
+RENDER['s-admin'] = () => {
+  $('#s-admin').innerHTML = `
+    <div class="topbar"><h2 class="px" style="margin:0;color:var(--yellow)">Painel do gestor</h2><button class="icon-btn" id="adm-x" aria-label="Fechar">✕</button></div>
+    <div id="adm-login" class="stack" style="margin-top:20px">
+      <p class="muted" style="text-align:center;margin:0">Avaliações e números do jogo Lumi.</p>
+      <input type="password" id="adm-pin" placeholder="Senha do gestor" autocomplete="current-password">
+      <p class="err" id="adm-err"></p>
+      <button class="btn" id="adm-go">ENTRAR</button>
+    </div>
+    <div id="adm-body"></div>`;
+  $('#adm-x').onclick = () => { history.replaceState(null, '', location.pathname + location.search); ADM = null; show(S.nick ? 'panel' : 'start'); };
+  $('#adm-pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('#adm-go').click(); });
+  $('#adm-go').onclick = () => admLoad($('#adm-pin').value);
+  if (ADM) admRender();
+};
+function localStats(){
+  const L = lsGet(LKEY) || [], by = e => L.filter(x => x.e === e);
+  const jog = new Set(by('jogador').map(x => x.jog)), miss = new Set(by('missao').map(x => x.jog));
+  const fb = by('feedback'), des = by('desafio').filter(x => x.tipo !== 'brinde_entregue');
+  const mundos = {}; CONFIG.worlds.forEach(w => mundos[w.mundo] = 0); by('descoberta').forEach(x => mundos[x.mundo] = (mundos[x.mundo] || 0) + 1);
+  const jogos = {}; des.forEach(x => { const j = jogos[x.tipo] = jogos[x.tipo] || { tipo:x.tipo, partidas:0, jog:new Set(), soma:0 }; j.partidas++; j.jog.add(x.jog); j.soma += x.pts; });
+  return {
+    indicadores:{ total_jogadores:jog.size, missoes_concluidas:miss.size, taxa_conclusao_pct:jog.size ? Math.round(1000*miss.size/jog.size)/10 : 0,
+      fragmentos_encontrados:by('descoberta').length, adesivos_entregues:by('desafio').filter(x => x.tipo === 'brinde_entregue').length,
+      nota_media:fb.length ? Math.round(100*fb.reduce((a,x) => a + x.nota, 0)/fb.length)/100 : null, total_avaliacoes:fb.length },
+    por_mundo:Object.entries(mundos).map(([mundo, descobertas]) => ({ mundo, descobertas })),
+    por_jogo:Object.values(jogos).map(j => ({ tipo:j.tipo, partidas:j.partidas, jogadores:j.jog.size, media:Math.round(j.soma/j.partidas) })),
+    notas:[1,2,3,4,5].map(n => ({ nota:n, qtd:fb.filter(x => x.nota === n).length })),
+    comentarios:fb.slice().reverse().map(x => ({ data:x.at, nota:x.nota, gostou:x.gostou, melhorar:x.melhorar }))
+  };
+}
+async function admLoad(pin){
+  const err = $('#adm-err'); err.textContent = '';
+  if (!pin){ err.textContent = 'Digite a senha.'; return; }
+  if (apiOn() && navigator.onLine){
+    try {
+      const r = await fetch(`${base()}/rest/v1/rpc/painel_gestor`, { method:'POST', headers:hdr(), body:JSON.stringify({ senha:pin }) });
+      if (!r.ok){ err.textContent = (r.status === 400 || r.status === 401 || r.status === 403) ? 'Senha incorreta.' : 'Erro ao consultar o servidor.'; return; }
+      ADM = Object.assign(await r.json(), { fonte:'servidor', pin, quando:new Date() });
+    } catch(e){ err.textContent = 'Sem conexão com o servidor. Tente novamente.'; return; }
+  } else {
+    if (pin !== CONFIG.gestorSenhaLocal){ err.textContent = 'Senha incorreta.'; return; }
+    ADM = Object.assign(localStats(), { fonte:'local', pin, quando:new Date() });
+  }
+  admRender();
+}
+function admRender(){
+  const d = ADM, I = d.indicadores || {};
+  $('#adm-login').style.display = 'none';
+  const maxM = Math.max(1, ...d.por_mundo.map(x => x.descobertas)), maxN = Math.max(1, ...d.notas.map(x => x.qtd));
+  const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  $('#adm-body').innerHTML = `
+    <div class="notice" style="margin:12px 0">${d.fonte === 'servidor' ? '<b>Dados do servidor</b>: todos os aparelhos.' : '<b>Modo local</b>: apenas os dados registrados <b>neste aparelho</b>. Configure o Supabase para ver os números de todos os jogadores.'}
+      <br><small>Atualizado às ${d.quando.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small></div>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi"><b>${fmt(I.total_jogadores || 0)}</b><span>jogadores</span></div>
+      <div class="kpi"><b>${fmt(I.missoes_concluidas || 0)}</b><span>missões concluídas</span></div>
+      <div class="kpi"><b>${(I.taxa_conclusao_pct || 0).toLocaleString('pt-BR')}%</b><span>taxa de conclusão</span></div>
+      <div class="kpi"><b>${fmt(I.fragmentos_encontrados || 0)}</b><span>QR Codes lidos</span></div>
+      <div class="kpi"><b>${fmt(I.adesivos_entregues || 0)}</b><span>adesivos entregues</span></div>
+      <div class="kpi"><b>${I.nota_media != null ? Number(I.nota_media).toLocaleString('pt-BR') : '—'}</b><span>nota média (${fmt(I.total_avaliacoes || 0)} avaliações)</span></div>
+    </div>
+    <h3 class="adm-h">QR Codes lidos por mundo</h3>
+    ${d.por_mundo.map(x => `<div class="hbar"><span>${esc(x.mundo)}</span><i style="width:${100*x.descobertas/maxM}%"></i><b>${x.descobertas}</b></div>`).join('')}
+    <h3 class="adm-h">Minijogos</h3>
+    <div class="rank">${Object.keys(GAME_NAMES).map(t => { const j = d.por_jogo.find(x => x.tipo === t) || { partidas:0, media:0 };
+      return `<div class="row" style="grid-template-columns:1fr auto auto"><div class="nm" style="white-space:normal">${GAME_NAMES[t]}</div><div class="muted" style="font-size:12px;text-align:right">média<br>${fmt(j.media || 0)} pts</div><div class="pt">${fmt(j.partidas)}<small style="display:block;font-size:10px;color:var(--muted)">partidas</small></div></div>`; }).join('')}</div>
+    <h3 class="adm-h">Avaliações</h3>
+    ${d.notas.slice().reverse().map(x => `<div class="hbar"><span style="color:var(--yellow)">${stars(x.nota)}</span><i style="width:${100*x.qtd/maxN}%"></i><b>${x.qtd}</b></div>`).join('')}
+    <h3 class="adm-h">Comentários (${d.comentarios.length})</h3>
+    <div class="stack" style="align-items:stretch">${d.comentarios.length ? d.comentarios.map(c => `
+      <div class="card" style="font-size:13.5px;line-height:1.45">
+        <div style="display:flex;justify-content:space-between"><b style="color:var(--yellow)">${stars(c.nota)}</b><small class="muted">${new Date(c.data).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small></div>
+        ${c.gostou ? `<div style="margin-top:6px"><b>Gostou:</b> ${esc(c.gostou)}</div>` : ''}
+        ${c.melhorar ? `<div style="margin-top:4px"><b>Melhorar:</b> ${esc(c.melhorar)}</div>` : ''}
+        ${!c.gostou && !c.melhorar ? '<div class="muted" style="margin-top:4px">(sem comentário)</div>' : ''}
+      </div>`).join('') : '<p class="muted" style="text-align:center">Nenhuma avaliação ainda.</p>'}</div>
+    <div class="stack" style="margin:16px 0 30px">
+      <button class="btn small" id="adm-ref">↻ ATUALIZAR</button>
+      <button class="btn ghost small" id="adm-csv">BAIXAR AVALIAÇÕES (CSV)</button>
+      <button class="btn ghost small" id="adm-copy">COPIAR AVALIAÇÕES</button>
+      <p class="muted" id="adm-msg" style="font-size:12px;min-height:16px"></p>
+    </div>`;
+  const csv = () => 'data;nota;gostou;melhorar\n' + d.comentarios.map(c => [new Date(c.data).toLocaleString('pt-BR'), c.nota, c.gostou || '', c.melhorar || ''].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';')).join('\n');
+  $('#adm-ref').onclick = () => admLoad(d.pin);
+  $('#adm-csv').onclick = () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv()], { type:'text/csv' })); a.download = 'lumi-avaliacoes.csv'; document.body.appendChild(a); a.click(); a.remove(); $('#adm-msg').textContent = 'Arquivo gerado.'; } catch(e){ $('#adm-msg').textContent = 'Não foi possível baixar aqui; use "Copiar".'; } };
+  $('#adm-copy').onclick = async () => { try { await navigator.clipboard.writeText(csv()); $('#adm-msg').textContent = 'Copiado! Cole numa planilha.'; } catch(e){ $('#adm-msg').textContent = 'Não foi possível copiar neste navegador.'; } };
 }
 
 /* ===================== loop principal ===================== */
@@ -1575,7 +1807,7 @@ function loop(ms){
   $$('.screen.on canvas.lumi-cv').forEach(c => drawPortrait(c, now));
   if (cur === 's-discovery') drawFx(now, $('#fx-disc'));
   if (cur === 's-done') drawFx(now, $('#fx-core'));
-  if (cur === 's-lights') lgUpdate(now);
+  if (cur === 's-words' && WS) $('#ws-time').textContent = Math.floor((performance.now() - WS.t0)/1000) + 's';
   if (cur === 's-collective') drawForest(now);
 }
 requestAnimationFrame(loop);
@@ -1588,6 +1820,8 @@ requestAnimationFrame(loop);
     if (S.nick && S.tutorialDone){ setTimeout(() => registerCode(code), 300); }
     else { S.pendingCode = code; save(); toast('Fragmento detectado! Comece a missão para recuperá-lo.', 3500); }
   }
+  const route = () => { if (location.hash === '#gestor') show('admin'); };
+  window.addEventListener('hashchange', route); route();
   updateNet(); flush();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
   // impede zoom por duplo toque no iOS
