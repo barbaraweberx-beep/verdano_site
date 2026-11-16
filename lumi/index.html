@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#2a0e36">
+<!-- Preserve the authored palette when mobile browsers auto-darken websites. -->
+<meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Lumi – O Código da Luz. Uma floresta. Muitos mundos. Uma missão.">
@@ -14,7 +16,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>LUMI – O Código da Luz</title>
 <style>
-:root{--lime:#ffd447;--forest:#7b4fd6;--yellow:#ffe08a;--blue:#6f8cff;--pink:#ff6ad5;--lav:#b98cff;--deep:#2a0e36;--deeper:#1a0822;--white:#e8e0d4;--muted:#b6a3c4;--card:rgba(255,255,255,.06);--line:rgba(255,212,71,.3);--fd:'Lutfey Arabic','Lutfey','Fredoka',Verdana,sans-serif;--ft:Verdana,Geneva,'DejaVu Sans',sans-serif}
+:root{color-scheme:only light;--lime:#ffd447;--forest:#7b4fd6;--yellow:#ffe08a;--blue:#6f8cff;--pink:#ff6ad5;--lav:#b98cff;--deep:#2a0e36;--deeper:#1a0822;--white:#e8e0d4;--muted:#b6a3c4;--card:rgba(255,255,255,.06);--line:rgba(255,212,71,.3);--fd:'Lutfey Arabic','Lutfey','Fredoka',Verdana,sans-serif;--ft:Verdana,Geneva,'DejaVu Sans',sans-serif}
 @font-face{font-family:'Lutfey Arabic';src:local('Lutfey Arabic'),local('LutfeyArabic-Regular'),url('fonts/LutfeyArabic.woff2') format('woff2'),url('fonts/LutfeyArabic.otf') format('opentype');font-display:swap}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#12051a;color:var(--white);font-family:var(--ft);overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
@@ -323,9 +325,10 @@ h2.px{font-size:22px;color:var(--lime);text-shadow:0 0 14px rgba(255,212,71,.4)}
   <h2 class="px">Encontre o QR da Lumi</h2>
   <p class="muted" style="margin:2px 0;font-size:14px">Aponte a câmera para o QR Code da estação.</p>
   <div class="qrbox"><video id="qr-video" playsinline muted></video><div class="frame"></div><div class="note" id="qr-note">Abrindo câmera…</div></div>
-  <p class="err" id="qr-msg" style="text-align:center"></p>
+  <p class="err" id="qr-msg" role="status" aria-live="polite" style="text-align:center"></p>
+  <button class="btn ghost small" id="b-camera-retry" hidden>TENTAR CÂMERA NOVAMENTE</button>
   <p class="muted" style="font-size:13px;margin:4px 0 0">Sem câmera? Digite o código impresso abaixo do QR:</p>
-  <div class="manual"><input type="text" id="qr-manual" maxlength="40" placeholder="Ex.: 7Q2X" autocomplete="off" autocapitalize="characters"><button class="btn small" id="b-manual">OK</button></div>
+  <div class="manual"><input type="text" id="qr-manual" maxlength="40" placeholder="Ex.: A1B2" autocomplete="off" autocapitalize="characters"><button class="btn small" id="b-manual">OK</button></div>
   <div class="sp"></div>
   <button class="btn ghost small" data-go="panel">VOLTAR AO PAINEL</button>
 </section>
@@ -1139,16 +1142,35 @@ function gameEnd(id, pts, o){
 let qrStream = null, qrScanning = false, qrPauseUntil = 0, detector = null;
 try { if ('BarcodeDetector' in window) detector = new BarcodeDetector({ formats:['qr_code'] }); } catch(e){ detector = null; }
 const qrCanvas = document.createElement('canvas'), qrCtx = qrCanvas.getContext('2d', { willReadFrequently:true });
+const cameraPermissionHelp = 'O acesso à câmera está bloqueado. Nas permissões deste site no navegador, permita a câmera. Confira também se o navegador tem acesso à câmera nas configurações do celular. Depois, toque em “Tentar câmera novamente”. Você também pode digitar o código impresso abaixo do QR Code.';
 async function qrOpen(){
+  qrClose();
   show('qr'); $('#qr-msg').textContent = ''; $('#qr-manual').value = '';
+  const retry = $('#b-camera-retry'); retry.hidden = true;
   const note = $('#qr-note'); note.style.display = 'flex'; note.textContent = 'Abrindo câmera…';
+  if (!window.isSecureContext){ note.textContent = 'A câmera precisa de uma conexão HTTPS segura. Nesta página HTTP ou com conexão não segura, use o código impresso abaixo do QR Code. Alterar a permissão não resolve a falta de uma conexão segura.'; return; }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ note.textContent = 'Câmera indisponível neste navegador. Digite o código impresso abaixo do QR Code.'; return; }
   try {
+    // Camera permission queries are optional: some browsers do not support them.
+    let permission;
+    try { if (navigator.permissions?.query) permission = await navigator.permissions.query({ name:'camera' }); } catch(e){}
+    if (cur !== 's-qr') return;
+    if (permission?.state === 'denied'){ note.textContent = cameraPermissionHelp; retry.hidden = false; return; }
+    note.textContent = 'Quando o navegador pedir, toque em “Permitir” para usar a câmera. Você também pode digitar o código abaixo.';
     qrStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
     if (cur !== 's-qr'){ qrClose(); return; }
     const v = $('#qr-video'); v.srcObject = qrStream; await v.play(); note.style.display = 'none'; qrScanning = true; qrLoop();
-  } catch(e){ note.textContent = 'Não foi possível abrir a câmera (permissão negada ou página sem HTTPS). Digite o código impresso abaixo do QR Code.'; }
+  } catch(e){
+    qrClose();
+    if (cur !== 's-qr') return;
+    retry.hidden = false;
+    if (e.name === 'NotAllowedError' || e.name === 'SecurityError') note.textContent = cameraPermissionHelp;
+    else if (e.name === 'NotFoundError') note.textContent = 'Nenhuma câmera disponível foi encontrada. Confira a câmera e as permissões do navegador no celular, ou digite o código impresso abaixo do QR Code.';
+    else if (e.name === 'NotReadableError' || e.name === 'AbortError') note.textContent = 'Não foi possível iniciar a câmera. Feche outros aplicativos que possam estar usando a câmera e tente novamente, ou digite o código impresso abaixo do QR Code.';
+    else note.textContent = 'Não foi possível abrir a câmera. Tente novamente ou digite o código impresso abaixo do QR Code.';
+  }
 }
+$('#b-camera-retry').onclick = qrOpen;
 function qrClose(){ qrScanning = false; if (qrStream){ qrStream.getTracks().forEach(t => t.stop()); qrStream = null; } const v = $('#qr-video'); if (v) v.srcObject = null; }
 async function qrLoop(){
   if (!qrScanning) return;
